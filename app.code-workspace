@@ -1,0 +1,60 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2,
+    "files.eol": "\n",
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "[ignore]": {
+      "editor.defaultFormatter": "foxundermoon.shell-format"
+    },
+    "lldb.library": "/Library/Developer/CommandLineTools/Library/PrivateFrameworks/LLDB.framework/Versions/A/LLDB",
+    "lldb.launch.expressions": "native",
+    "[swift]": {
+      "editor.defaultFormatter": "sswg.swift-lang"
+    },
+    "swift.path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+    "swift.swiftEnvironmentVariables": {
+      "DEVELOPER_DIR": "/Applications/Xcode.app"
+    },
+    "[shellscript]": {
+      "editor.defaultFormatter": "foxundermoon.shell-format",
+      "editor.rulers": [80],
+      "editor.wordWrap": "off",
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true
+    },
+    "shellcheck.enable": true,
+    "shellcheck.useWorkspaceRootAsCwd": true,
+    "shellcheck.run": "onType",
+    "shellformat.flag": "-i 2 -ci -sr -bn",
+    "files.exclude": {
+      "os-scripts": true,
+      ".build": true,
+      ".swiftpm": true,
+      ".gitignore": true,
+      "default.profraw": true,
+      ".cursorrules": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ms-vscode.vscode-typescript-tslint-plugin",
+      "timonwong.shellcheck",
+      "vknabel.vscode-swift-development-environment",
+      "sswg.swift-lang",
+      "foxundermoon.shell-format",
+      "rogalmic.bash-debug",
+      "mads-hartmann.bash-ide-vscode",
+      "jetmartin.bats"
+    ]
+  }
+}

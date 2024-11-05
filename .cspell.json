@@ -1,0 +1,21 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "Bitwarden",
+    "Codacy",
+    "codecov",
+    "Dashlane"
+  ],
+  "ignorePaths": [
+    "app.code-workspace",
+    "package.json"
+  ],
+  "languageSettings": [
+    {
+      "languageId": "*",
+      "locale": "en",
+      "caseSensitive": false
+    }
+  ]
+}

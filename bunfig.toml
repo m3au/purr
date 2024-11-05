@@ -1,0 +1,9 @@
+[install]
+# Use the exact versions specified in package.json
+exact = true
+# Don't generate a lockfile
+lockfile = false
+
+[test]
+# Configure test environment
+preload = [".bats/test_helper.bash"]
