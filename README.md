@@ -1,133 +1,178 @@
-# 🐱 purr
+# purr <!-- omit in toc -->
 
-[![purr](https://github.com/m3au/store/blob/main/docs/purr.png)]
+A lightweight shell utility that integrates 1Password, SSH, and GPG key management. Securely loads and unloads keys, configures Git signing, and manages GitHub credentials - all with a simple purr command.
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/m3au/purr)](https://github.com/m3au/purr/releases)
-[![License](https://img.shields.io/github/license/m3au/purr)](LICENSE)
-[![GitHub issues](https://img.shields.io/github/issues/m3au/purr)](https://github.com/m3au/purr/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/m3au/purr)](https://github.com/m3au/purr/pulls)
-[![Tests](https://github.com/m3au/purr/workflows/Tests/badge.svg)](https://github.com/m3au/purr/actions)
-[![CodeQL](https://github.com/m3au/purr/workflows/CodeQL/badge.svg)](https://github.com/m3au/purr/security/code-scanning)
-[![Maintainability](https://api.codeclimate.com/v1/badges/YOUR_REPO_ID/maintainability)](https://codeclimate.com/github/m3au/purr)
-[![codecov](https://codecov.io/gh/m3au/purr/branch/main/graph/badge.svg)](https://codecov.io/gh/m3au/purr)
-[![ZSH Plugin](https://img.shields.io/badge/ZSH-Plugin-blue)](https://github.com/unixorn/awesome-zsh-plugins)
-[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![Maintenance](https://img.shields.io/maintenance/yes/2024)](https://github.com/m3au/purr/graphs/commit-activity)
-[![Last Commit](https://img.shields.io/github/last-commit/m3au/purr)](https://github.com/m3au/purr/commits/main)
-[![npm version](https://img.shields.io/npm/v/@m3au/purr)](https://www.npmjs.com/package/@m3au/purr)
-[![npm downloads](https://img.shields.io/npm/dm/@m3au/purr)](https://www.npmjs.com/package/@m3au/purr)
-[![DeepSource](https://deepsource.io/gh/m3au/purr.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/m3au/purr/?ref=repository-badge)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/YOUR_PROJECT_ID)](https://www.codacy.com/gh/m3au/purr/dashboard)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=m3au_purr&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=m3au_purr)
-[![Twitter Follow](https://img.shields.io/twitter/follow/m3au?style=social)](https://twitter.com/m3au)
-[![GitHub Sponsors](https://img.shields.io/github/sponsors/m3au?style=social)](https://github.com/sponsors/m3au)
-[![Reddit User Karma](https://img.shields.io/reddit/user-karma/combined/m3au?style=social)](https://reddit.com/u/m3au)
-[![macOS](https://img.shields.io/badge/macOS-supported-success)](https://github.com/m3au/purr#prerequisites)
-[![1Password](https://img.shields.io/badge/1Password-integrated-blue)](https://1password.com/)
-[![GPG](https://img.shields.io/badge/GPG-enabled-brightgreen)](https://gnupg.org/)
-[![SSH](https://img.shields.io/badge/SSH-supported-yellow)](https://www.ssh.com/)
+> **Note**: purr is designed for macOS and Unix-like systems. It relies heavily on Unix shell features, 1Password CLI integration, and native SSH/GPG functionality. Windows users should consider using WSL2 (Windows Subsystem for Linux) or similar Unix-like environments.
 
-A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG. Securely loads and unloads keys, configures Git signing, and manages GitHub credentials - all with a simple purr command.
+![purr](https://github.com/m3au/store/blob/main/docs/purr.png)
 
-## 🚀 Features
+- [Features](#features)
+- [Usage](#usage)
+- [Installation](#installation)
+- [Setup](#setup)
 
-- 🔐 Seamless integration with 1Password for secure key storage
-- 🔑 Automated SSH key management
-- 📝 GPG key handling and Git commit signing
-- 🔄 GitHub credentials configuration
-- 🔒 Secure key unloading with lock command
-- 🔍 Key status checking capabilities
+## Features
 
-## 📋 Prerequisites
+- One-command setup for secure development environment
+- Touch ID integration for:
+  - SSH authentication (Git operations, remote access)
+  - GPG operations (commit signing)
+  - Terminal commands (sudo)
+- Automated key management through 1Password
+- Secure key unloading when stepping away
 
-### Required
+## Usage
 
-- macOS
-- ZSH shell
-- 1Password CLI (`op`) installed and configured
-- GPG installed (`brew install gnupg`)
-- SSH client (built into macOS)
+For complete command reference and examples, see the [Usage Guide](docs/guides/usage/README.md).
 
-### Optional
+Morning Setup:
 
-- lolcat for colorful output (`brew install lolcat`)
+   ```bash
+   purr  # Load everything at once
 
-## 🛠 Installation
-
-### Using a ZSH plugin manager
-
-#### [antidote](https://github.com/mattmc3/antidote)
-
-### Manual installation
-
-1. Clone the repository
-2. Source the init script in your ZSH configuration (e.g., `~/.zshrc`):
-
-   ```zsh
-   source path/to/purr/init.zsh
+   # Connects to 1Password SSH agent
+   # Loads GPG keys
+   # Configures Git signing
+   # Sets up GitHub credentials
    ```
 
-3. Add the plugin to your ZSH plugins list:
+During Development:
 
-   ```zsh
-   antidote bundle <path-to-purr>
+- Make signed Git commits (Touch ID prompt)
+- Use SSH with Touch ID authentication
+- Check key status: `purr check`
+- View detailed status: `purr -v check`
+
+End of Day:
+
+   ```bash
+   purr lock  # Unload everything securely
    ```
 
-## 🔑 Usage
+purr is designed with security in mind:
 
-### Implemented Commands
+- No local key storage - everything stays in 1Password
+- Memory-only operations
+- Touch ID authentication for sensitsive operations
+- Easy key unloading / locking
 
-- `purr` - Loads keys and configures Git signing
-- `purr lock` - Unloads keys and locks 1Password
-- `purr check` - Checks key status
-- `purr -v` - Verbose mode for any command
-- `purr -h` - Shows help message
+For detailed security information and best practices, see our [Security Policy](docs/SECURITY.md).
 
-### Coming Soon
+## Installation
 
-- `purr github` - Configures GitHub credentials
-- `purr git` - Configures Git signing
-- `purr gpg` - Manages GPG keys
-- `purr ssh` - Manages SSH keys
-- `purr 1password` - Manages 1Password integration
-- `purr op` - 1Password CLI shortcuts
-- `purr key` - Key obfuscation utilities
-
-## 🗺 Roadmap
-
-### Password Manager Integration
-
-- [ ] Bitwarden support
-- [ ] KeePassXC support
-- [ ] LastPass support
-- [ ] Dashlane support
-
-### Key Management
-
-- [ ] YubiKey integration
-- [ ] Multiple key profile support
-- [ ] Key rotation automation
-- [ ] Backup and recovery workflows
-
-### Additional Features
-
-- [ ] Terminal UI with charm.sh
-- [ ] Cloud key provider integration
-- [ ] Team key management
-- [ ] Audit logging
-
-## 🧪 Testing
+For detailed setup instructions and requirements, see the [Setup Guide](docs/guides/setup/README.md).
 
 ```bash
-bun test
+# Clone the repository
+git clone https://github.com/m3au/purr.git
+cd purr
+
+# Add to your shell config
+echo '# purr - Key management utility' >> ~/.zshrc
+echo 'export PURR_HOME="$HOME/_/dev/purr"' >> ~/.zshrc
+echo '[ -s "$PURR_HOME/lib/purr" ] && . "$PURR_HOME/lib/purr"' >> ~/.zshrc
+
+# Reload your shell
+source ~/.zshrc
 ```
 
+## Setup
 
-## 📄 License
+### GitHub Configuration <!-- omit in toc -->
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+1. Create a new Personal Access Token (Classic):
+   - Go to GitHub Settings → Developer Settings → [Personal Access Tokens (Classic)](https://github.com/settings/tokens)
+   - Click "Generate new token (classic)"
+   - Name it something like "purr-cli"
+   - Select the required scopes:
+     - `repo` (Full control of private repositories)
+     - `workflow` (Update GitHub Action workflows)
+     - `write:packages` (Upload packages)
+     - `delete:packages` (Delete packages)
+     - `admin:gpg_key` (Manage GPG keys)
+   - Click "Generate token"
+   - **Important**: Copy your token immediately - you won't be able to see it again!
 
-## 🤝 Contributing
+### 1Password Configuration <!-- omit in toc -->
 
-Contributions are welcome! Please open an issue or submit a pull request.
+1. Create a dedicated vault in 1Password:
+   - Open 1Password
+   - Click "Add Vault" (+ icon)
+   - Name it "purr" (or set custom name via `PURR_VAULT` environment variable)
 
+2. In the "purr" vault, create three items:
+
+   a. Create a new "Login" item named "gpg":
+   - Title: `gpg`
+   - Add custom fields:
+     - `key_id`: Your GPG key ID (e.g., "819B065CAC953C07E834B416121EEAD62DC2067B")
+     - `password`: Your GPG key password
+     - `public_key`: Your full GPG public key (including BEGIN/END blocks)
+     - `private_key`: Your full GPG private key (including BEGIN/END blocks)
+
+   b. Create a new "Login" item named "github":
+   - Title: `github`
+   - Add custom fields:
+     - `username`: Your GitHub username
+     - `email`: Your GitHub email
+     - `pat`: Your GitHub Personal Access Token
+
+   c. Create a new "Login" item named "ssh":
+   - Title: `ssh`
+   - Add custom fields:
+     - `public_key`: Your SSH public key
+     - `private_key`: Your SSH private key
+     - `password`: Your SSH key password (if any)
+     - `key_type`: The key type (e.g., "Ed25519")
+     - `fingerprint`: The key fingerprint
+
+You can use custom field names by setting the `PURR_` variables in your shell config.
+
+For detailed configuration options and advanced setup, see the [Setup Guide](docs/guides/setup/README.md).
+
+### Touch ID Configuration <!-- omit in toc -->
+
+1. Enable Touch ID for terminal commands:
+
+   ```bash
+   sudo sh -c 'echo "auth sufficient pam_tid.so" >> /etc/pam.d/sudo'
+   ```
+
+2. Install and configure pinentry for GPG Touch ID support:
+
+   ```bash
+   brew install pinentry-mac
+   echo "pinentry-program $(which pinentry-mac)" > ~/.gnupg/gpg-agent.conf
+   chmod 700 ~/.gnupg
+   gpgconf --kill gpg-agent
+   ```
+
+3. Configure your terminal:
+   - **iTerm2**: Preferences → Advanced → Enable "Allow Touch ID authentication"
+   - **Terminal.app**: Works out of the box
+   - **VS Code**: Settings → Search for "terminal.integrated.enableTouchId" → Enable
+
+
+
+## Contributing <!-- omit in toc -->
+
+We'd love your help making purr better! We're a friendly community that welcomes contributions of all kinds:
+
+- Found a bug? Open an issue or PM us
+- Have a feature request? We'd love to hear it
+- Want to improve docs? Yes please!
+- Got a fix ready? PRs welcome
+
+Not sure where to start? Feel free to:
+
+- [Open an issue](https://github.com/m3au/purr/issues/new)
+- [Send us a PM](mailto:m3au@pm.me)
+- Join our discussions
+
+Every contribution helps, and we aim to review all PRs promptly!
+
+Check out our [Contributing Guide](docs/guides/contributing/README.md).
+
+## License <!-- omit in toc -->
+
+MIT - See [LICENSE](LICENSE)

@@ -2,14 +2,37 @@
   "version": "0.2",
   "language": "en",
   "words": [
+    "alacritty",
     "Bitwarden",
     "Codacy",
     "codecov",
-    "Dashlane"
+    "Dashlane",
+    "esac",
+    "gpgconf",
+    "gpgsign",
+    "kcov",
+    "keychain",
+    "keyid",
+    "pgrep",
+    "pinentry",
+    "pkill",
+    "POSIX",
+    "precommit",
+    "sensitsive",
+    "shellcheck",
+    "shellspec",
+    "shfmt",
+    "signin",
+    "signingkey",
+    "TMPDIR",
+    "touchid",
+    "unalias",
+    "Yubi"
   ],
   "ignorePaths": [
     "app.code-workspace",
-    "package.json"
+    "package.json",
+    ".prettierrc"
   ],
   "languageSettings": [
     {

@@ -1,0 +1,8 @@
+--shell /bin/bash
+--pattern "*.spec"
+--env PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
+--env TMPDIR=/tmp/shellspec-tests
+--format documentation
+--color
+--kcov-options "--include-path=lib --exclude-pattern=.spec."
+--kcov-path /opt/homebrew/Cellar/kcov/43/bin/kcov
