@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. "${PURR_ROOT}/lib/modules/core/common.sh"
+. "${PURR_ROOT}/lib/core/common.sh"
 
 update_command() {
     info "Checking for updates..."

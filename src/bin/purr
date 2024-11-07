@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PURR_VERSION="0.1.0"
+PURR_VERSION="0.0.1"
 PURR_ROOT="${PURR_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 PURR_LIB="${PURR_LIB:-$PURR_ROOT/lib}"
 export PURR_ROOT PURR_LIB PURR_VERSION
@@ -32,23 +32,23 @@ help_command() {
 Usage: purr [command] [options]
 
 Commands:
-  status    Show current status
-  keys      Manage SSH and GPG keys
-  lock      Unload keys and lock agents
-  install   Install or reinstall purr
-  uninstall Remove purr
-  update    Check for and install updates
-  doctor    Run system diagnostics
-  config    Manage configuration
-  backup    Backup configuration
-  reset     Reset to defaults
-  verify    Verify installation
-  version   Show version information
-  help      Show this help message
+  status      Show current status
+  keys        Manage SSH and GPG keys
+  lock        Unload keys and lock agents
+  install     Install or reinstall purr
+  uninstall   Remove purr
+  update      Check for and install updates
+  doctor      Run system diagnostics
+  config      Manage configuration
+  backup      Backup configuration
+  reset       Reset to defaults
+  verify      Verify installation
+  version     Show version information
+  help        Show this help message
 
 Options:
-  -v, --version  Show version information
-  -h, --help     Show this help message
+  -v, --version   Show version information
+  -h, --help      Show this help message
 EOF
 }
 

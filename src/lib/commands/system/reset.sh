@@ -1,9 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-# Source common functions
-# shellcheck source=src/lib/core/common.sh
-# shellcheck disable=SC1091,SC3028
-. "$(dirname "$0")/../../../lib/core/common.sh"
+. "${PURR_ROOT}/lib/core/common.sh"
 
 config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/purr"
 backup_dir="${XDG_DATA_HOME:-$HOME/.local/share}/purr/backups"
@@ -30,7 +27,6 @@ reset_config() {
 }
 
 # Execute if script is run directly
-# shellcheck disable=SC3028
-if [ "$0" = "${BASH_SOURCE:-$0}" ]; then
+if [ "${0##*/}" = "reset.sh" ]; then
     reset_config
 fi

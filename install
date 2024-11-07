@@ -1,0 +1,106 @@
+#!/bin/sh
+
+set -eu
+
+VERSION="0.0.1"
+PURR_DATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/purr"
+SHELL_RC="${HOME}/.$(basename "${SHELL:-zsh}")rc"
+REPO_URL="https://github.com/m3au/purr.git"
+QUIET=${QUIET:-0}
+
+log() {
+    _level=$1; shift
+    _msg="$*"
+    _timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+
+    case "$_level" in
+        INFO)  [ "$QUIET" -eq 0 ] && printf "\033[0m%s [%s] %s\n" "$_timestamp" "$_level" "$_msg" ;;
+        WARN)  printf "\033[0;33m%s [%s] %s\033[0m\n" "$_timestamp" "$_level" "$_msg" >&2 ;;
+        ERROR) printf "\033[0;31m%s [%s] %s\033[0m\n" "$_timestamp" "$_level" "$_msg" >&2 ;;
+    esac
+}
+
+cleanup() {
+    if [ -d "${TMP_DIR:-}" ]; then
+        rm -rf "$TMP_DIR"
+    fi
+}
+trap cleanup EXIT
+
+check_deps() {
+    if ! command -v git >/dev/null 2>&1; then
+        log ERROR "git is required but not installed"
+        exit 1
+    fi
+}
+
+check_shell() {
+    case "${SHELL:-}" in
+        *zsh|*bash) return 0 ;;
+        *) log ERROR "Unsupported shell: ${SHELL:-unknown}"; exit 1 ;;
+    esac
+}
+
+if [ "${1:-}" = "uninstall" ]; then
+    if [ -d "$PURR_DATA_DIR" ]; then
+        log INFO "Uninstalling purr..."
+        rm -rf "$PURR_DATA_DIR"
+        sed -i.bak "/purr._purr/d" "$SHELL_RC"
+        log INFO "Uninstallation complete"
+    else
+        log WARN "purr is not installed"
+    fi
+    exit 0
+fi
+
+main() {
+    log INFO "Installing purr v${VERSION}..."
+
+    check_deps
+    check_shell
+
+    if [ -d "$PURR_DATA_DIR" ]; then
+        log ERROR "Existing installation found at $PURR_DATA_DIR"
+        log ERROR "To reinstall, first run: $0 uninstall"
+        exit 1
+    fi
+
+    TMP_DIR=$(mktemp -d)
+
+    log INFO "Downloading purr..."
+    if ! git clone --quiet "$REPO_URL" "$TMP_DIR"; then
+        log ERROR "Failed to clone repository"
+        exit 1
+    fi
+
+    log INFO "Installing files..."
+    mkdir -p "$PURR_DATA_DIR"
+    cp -r "$TMP_DIR/src/"* "$PURR_DATA_DIR/"
+
+    chmod 755 "$PURR_DATA_DIR/bin/purr"
+    chmod -R 644 "$PURR_DATA_DIR/lib"
+    find "$PURR_DATA_DIR/lib" -type d -exec chmod 755 {} \;
+
+    log INFO "Setting up shell integration..."
+    {
+        echo "# purr shell integration"
+        echo "export PURR_ROOT=\"\${XDG_DATA_HOME:-\$HOME/.local/share}/purr\""
+        echo "export PURR_LIB=\"\$PURR_ROOT/lib\""
+        echo "export PATH=\"\$PURR_ROOT/bin:\$PATH\""
+    } > "$PURR_DATA_DIR/_purr"
+    chmod 644 "$PURR_DATA_DIR/_purr"
+
+    if ! grep -q "source.*purr/_purr" "$SHELL_RC"; then
+        echo "source \"\${XDG_DATA_HOME:-\$HOME/.local/share}/purr/_purr\"" >> "$SHELL_RC"
+    fi
+
+    if ! command -v purr >/dev/null 2>&1; then
+        log ERROR "Installation verification failed"
+        exit 1
+    fi
+
+    log INFO "✨ Installation complete!"
+    log INFO "Please restart your shell or run: source $SHELL_RC"
+}
+
+main "$@"

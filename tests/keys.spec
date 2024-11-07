@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # shellcheck shell=bash
 
 Describe 'keys.sh' Skip

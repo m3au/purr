@@ -2,14 +2,15 @@
 
 A lightweight shell utility that integrates 1Password, SSH, and GPG key management. Securely loads and unloads keys, configures Git signing, and manages GitHub credentials - all with a simple purr command.
 
-> **Note**: purr is designed for macOS and Unix-like systems. It relies heavily on Unix shell features, 1Password CLI integration, and native SSH/GPG functionality. Windows users should consider using WSL2 (Windows Subsystem for Linux) or similar Unix-like environments.
+> **Target Audience**: purr is designed for macOS and Unix-like systems. It relies heavily on Unix shell features, 1Password CLI integration, and native SSH/GPG functionality for security and efficiency. Windows users should consider using WSL2 (Windows Subsystem for Linux) or similar Unix-like environments.
 
 ![purr](https://github.com/m3au/store/blob/main/docs/purr.png)
-
 - [Features](#features)
 - [Usage](#usage)
 - [Installation](#installation)
 - [Setup](#setup)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
@@ -62,18 +63,14 @@ For detailed security information and best practices, see our [Security Policy](
 
 For detailed setup instructions and requirements, see the [Setup Guide](docs/guides/setup/README.md).
 
+### Via Homebrew (Recommended) <!-- omit in toc -->
 ```bash
-# Clone the repository
-git clone https://github.com/m3au/purr.git
-cd purr
+brew install m3au/tap/purr
+```
 
-# Add to your shell config
-echo '# purr - Key management utility' >> ~/.zshrc
-echo 'export PURR_HOME="$HOME/_/dev/purr"' >> ~/.zshrc
-echo '[ -s "$PURR_HOME/lib/purr" ] && . "$PURR_HOME/lib/purr"' >> ~/.zshrc
-
-# Reload your shell
-source ~/.zshrc
+### Manual Installation <!-- omit in toc -->
+```bash
+curl -fsSL https://raw.githubusercontent.com/m3au/purr/main/install | bash
 ```
 
 ## Setup
@@ -152,9 +149,7 @@ For detailed configuration options and advanced setup, see the [Setup Guide](doc
    - **Terminal.app**: Works out of the box
    - **VS Code**: Settings → Search for "terminal.integrated.enableTouchId" → Enable
 
-
-
-## Contributing <!-- omit in toc -->
+## Contributing
 
 We'd love your help making purr better! We're a friendly community that welcomes contributions of all kinds:
 
@@ -171,8 +166,8 @@ Not sure where to start? Feel free to:
 
 Every contribution helps, and we aim to review all PRs promptly!
 
-Check out our [Contributing Guide](docs/guides/contributing/README.md).
+Check out our [Development Guide](docs/guides/development/README.md).
 
-## License <!-- omit in toc -->
+## License
 
 MIT - See [LICENSE](LICENSE)

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 Describe 'uninstall.sh'
   Include src/lib/commands/system/uninstall.sh

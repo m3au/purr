@@ -7,15 +7,19 @@
 .vscode/
 *.code-workspace
 
-# Dependencies
-node_modules/
-
 # Logs
 *.log
 
 # Coverage
 coverage/
 
-# Project specific
-context.md
-background.md
+# Generated files
+docs/generated/
+docs/purr.1
+docs/background.md
+docs/context.md
+docs/backlog.md
+docs/goal.md
+
+# Development environment
+dev/

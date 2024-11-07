@@ -1,14 +1,11 @@
 #!/bin/sh
-# Configuration management functionality
 
 config_command() {
     case "$1" in
     get)
         shift
         if [ -z "$1" ]; then
-            # Show all config
             while IFS= read -r key; do
-                # Only show exported PURR_ variables
                 case "$key" in
                 PURR_*)
                     value=$(get_config "$key")
@@ -38,7 +35,7 @@ EOF
         ;;
     list)
         printf "➜ Current configuration:\n\n"
-        # Show all config (same as get with no args)
+
         while IFS= read -r key; do
             case "$key" in
             PURR_*)

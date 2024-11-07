@@ -1,47 +1,32 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # shellcheck shell=bash
 
 Describe 'version.sh'
   Include src/lib/commands/system/version.sh
 
-  setup() {
-    PURR_ROOT="$(mktemp -d)"
-    mkdir -p "$PURR_ROOT/.git"
-    cd "$PURR_ROOT" || exit 1
-  }
-
-  cleanup() {
-    rm -rf "$PURR_ROOT"
-  }
-
   BeforeEach 'setup'
-  AfterEach 'cleanup'
+  setup() {
+    export PURR_VERSION="0.0.1"
+  }
 
-  Mock git
-    case "$2" in
-      "describe")
-        echo "v1.0.0"
-        ;;
-      "rev-parse")
-        echo "abc1234"
-        ;;
-    esac
-  End
-
-  It 'shows version with git info when available'
+  It 'shows detailed version info'
     When call version_command
-    The output should eq "purr version v1.0.0 (abc1234)"
+    The output should eq "purr - key management tool
+version: 0.0.1
+license: MIT License
+website: https://github.com/m3au/purr"
   End
 
-  It 'shows only version with --short flag'
+  It 'shows only version number with --short flag'
     When call version_command --short
-    The output should eq "v1.0.0"
+    The output should eq "0.0.1"
   End
 
-  It 'shows default version when git is not available'
-    # Override git mock to fail
-    git() { return 1; }
-    When call version_command
-    The output should eq "purr version 0.0.1"
+  It 'shows version with v prefix when using --version flag'
+    When call version_command --version
+    The output should eq "purr - key management tool
+version: v0.0.1
+license: MIT License
+website: https://github.com/m3au/purr"
   End
 End

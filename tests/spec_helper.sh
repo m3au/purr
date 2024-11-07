@@ -1,42 +1,28 @@
 #!/usr/bin/env bash
-# shellcheck shell=bash
 
-# ShellSpec framework configuration
-spec_helper_precheck() {
-  : minimum_version "0.28.1"
+# Get the directory of this script
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$DIR/.." && pwd)"
+
+# Test framework functions
+describe() {
+    echo "Testing: $1"
 }
 
-spec_helper_loaded() {
-  :
+it() {
+    echo "  - $1"
 }
 
-spec_helper_configure() {
-  : import 'support/custom_matcher'
+assert() {
+    if [ "$1" = "$2" ]; then
+        echo "    ✓ Pass"
+        return 0
+    else
+        echo "    ✗ Fail: Expected '$2', got '$1'"
+        return 1
+    fi
 }
 
-# Project-specific configuration
-export PROJECT_ROOT
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-
-# Add project lib to PATH
-PATH="${PROJECT_ROOT}/lib:${PATH}"
-
-# Set PURR_HOME to a subdirectory of TMPDIR
-export PURR_HOME="${TMPDIR}/purr"
-
-# Debug info
-echo "=== Test Environment ==="
-echo "PROJECT_ROOT: $PROJECT_ROOT"
-echo "TMPDIR: $TMPDIR"
-echo "PURR_HOME: $PURR_HOME"
-echo "PATH: $PATH"
-echo "Available test files:"
-find "${PROJECT_ROOT}/tests" -name "*.spec" -type f
-
-# Load common modules
-Include() {
-  local module="$1"
-  echo "Including module: $module"
-  # shellcheck disable=SC1090
-  . "${PROJECT_ROOT}/${module}"
+end() {
+    :  # No-op
 }
