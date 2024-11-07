@@ -1,9 +1,7 @@
 #!/bin/sh
-# Authentication-related utilities
 
-# Source dependencies using same pattern as main purr script
-. "$(dirname "$0")/common.sh"
-. "$(dirname "$0")/color.sh"
+. "${PURR_ROOT}/lib/modules/core/common.sh"
+. "${PURR_ROOT}/lib/modules/core/color.sh"
 
 check_1password_status() {
     if ! command -v op >/dev/null 2>&1; then
@@ -66,3 +64,7 @@ check_existing_setup() {
 
     return 0
 }
+
+# TODO: Implement 1Password CLI detection
+# TODO: Add authentication flow validation
+# TODO: Add item access validation

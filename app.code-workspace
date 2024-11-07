@@ -47,7 +47,7 @@
     "git.enableCommitSigning": true,
     "files.exclude": {
       ".cspell.json": true,
-      ".gitignore": true,
+      // ".gitignore": true,
       ".markdownlint.json": true,
       ".nvmrc": true,
       ".shellspec": true,
@@ -59,7 +59,13 @@
     },
     "files.associations": {
       "*.spec": "shellscript"
-    }
+    },
+    "markdownlint.ignore": [
+      "context.md",
+      "background.md"
+    ],
+    "markdown.extension.toc.levels": "2..6",
+    "markdown.extension.toc.orderedList": false
   },
   "extensions": {
     "recommendations": [

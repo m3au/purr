@@ -32,7 +32,12 @@
   "ignorePaths": [
     "app.code-workspace",
     "package.json",
-    ".prettierrc"
+    ".prettierrc",
+    ".markdownlint.json",
+    ".nvmrc",
+    ".gitignore",
+    ".cspell.json",
+    "context.md"
   ],
   "languageSettings": [
     {

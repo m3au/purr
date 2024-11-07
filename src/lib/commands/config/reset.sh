@@ -1,25 +1,20 @@
 #!/bin/sh
-# Reset configuration functionality
 
 reset_command() {
-    printf "➜ Resetting configuration...\n"
+    info "Resetting configuration..."
 
     config_dir="$HOME/.purr"
     config_file="$config_dir/config"
 
-    # Confirm reset
-    printf "This will reset all configuration to defaults.\n"
+    info "This will reset all configuration to defaults."
     printf "Continue? [y/N] "
     read -r confirm
     case "$confirm" in
     [Yy]*)
-        # Create backup before reset
         backup_command
 
-        # Remove existing config
         rm -f "$config_file"
 
-        # Create default configuration
         mkdir -p "$config_dir"
         {
             printf "PURR_VAULT='purr'\n"
@@ -27,10 +22,10 @@ reset_command() {
             printf "PURR_GITHUB_ITEM='GitHub'\n"
         } >"$config_file"
 
-        printf "✓ Configuration reset to defaults\n"
+        success "Configuration reset to defaults"
         ;;
     *)
-        printf "Reset cancelled\n"
+        info "Reset cancelled"
         return 1
         ;;
     esac

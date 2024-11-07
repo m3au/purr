@@ -1,8 +1,6 @@
 #!/bin/sh
-# Environment validation utilities
 
-# shellcheck source=lib/modules/core/common.sh
-. "$(dirname "$0")/common.sh"
+. "${PURR_ROOT}/lib/modules/core/common.sh"
 
 validate_env() {
     if [ -z "$PURR_HOME" ]; then
@@ -29,3 +27,7 @@ check_required_commands() {
     success "All required commands found"
     return 0
 }
+
+# TODO: Add OS detection
+# TODO: Add shell detection
+# TODO: Add required tools check

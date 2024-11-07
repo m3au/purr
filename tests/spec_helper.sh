@@ -16,7 +16,7 @@ spec_helper_configure() {
 
 # Project-specific configuration
 export PROJECT_ROOT
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # Add project lib to PATH
 PATH="${PROJECT_ROOT}/lib:${PATH}"

@@ -12,3 +12,10 @@ node_modules/
 
 # Logs
 *.log
+
+# Coverage
+coverage/
+
+# Project specific
+context.md
+background.md

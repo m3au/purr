@@ -1,0 +1,60 @@
+#!/bin/sh
+
+# Write output to context.md
+{
+    echo "# Project Status"
+    echo
+
+    # Collect TODOs from source files
+    find . -type f -not -path "*/\.*" -not -path "*/node_modules/*" -exec grep -l "TODO\|FIXME\|XXX" {} \; | while read -r file; do
+        if [ -f "$file" ]; then
+            echo "## $(basename "$file")"
+            grep -h "TODO\|FIXME\|XXX" "$file" | sed 's/^.*TODO/- [ ]/' | sed 's/^.*FIXME/- [ ]/' | sed 's/^.*XXX/- [ ]/'
+            echo
+        fi
+    done
+
+    # Add notes section
+    echo "## Notes"
+    echo "- Remember to maintain test coverage while developing"
+    echo "- Keep security as top priority"
+    echo "- Document all shell compatibility issues"
+    echo "- Track performance impacts"
+    echo "- Keep installation footprint minimal"
+    echo
+
+    # Add environment variables
+    echo "## Environment Variables"
+    echo "Core:"
+    grep -h "^[[:space:]]*export[[:space:]]\+PURR_" src/lib/core/*.sh | sed 's/^.*export //' | sed 's/=.*//' | sort -u | while read -r var; do
+        echo "- $var"
+    done
+    echo
+    echo "Runtime:"
+    echo "- SSH_AUTH_SOCK: SSH agent socket"
+    echo "- GPG_TTY: GPG terminal"
+    echo "- SHELL: User's shell"
+    echo
+
+    # Add dependencies
+    echo "## Dependencies"
+    echo "Required:"
+    grep -h "^[[:space:]]*check_dependency" src/lib/commands/system/verify.sh | sed 's/.*check_dependency "\([^"]*\)".*/- \1/' || {
+        # Fallback to known required dependencies
+        echo "- 1Password CLI (op)"
+        echo "- SSH"
+        echo "- GPG"
+        echo "- Git"
+    }
+    echo
+    echo "Optional:"
+    grep -h "^[[:space:]]*optional_dependency" src/lib/commands/system/verify.sh | sed 's/.*optional_dependency "\([^"]*\)".*/- \1/' || {
+        # Fallback to known optional dependencies
+        echo "- lolcat (for fancy output)"
+        echo "- shellcheck (for development)"
+        echo "- kcov (for test coverage)"
+    }
+} > context.md
+
+# Print success message
+echo "Generated context.md"

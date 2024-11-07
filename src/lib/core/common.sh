@@ -1,5 +1,4 @@
 #!/bin/sh
-# Common utilities used across modules
 
 handle_error() {
     error_msg="$1"

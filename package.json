@@ -12,11 +12,15 @@
     "url": "git+https://github.com/m3au/purr.git"
   },
   "bin": {
-    "purr": "lib/purr"
+    "purr": "src/bin/purr"
   },
   "scripts": {
+    "background": "./background.ai",
+    "context": "./context.ai",
+    "purr": "./src/bin/purr",
     "test": "shellspec tests/*.spec",
-    "coverage": "rm -rf coverage && ulimit -n 4096 && shellspec --kcov tests/*.spec",
+    "reset": "./src/lib/commands/system/reset.sh",
+    "coverage": "rm -rf coverage && kcov --include-pattern=.sh --exclude-pattern=.spec. --include-path=lib coverage 'lib/purr' 'lib/modules/**/*.sh' 'scripts/*.sh' && open coverage/index.html",
     "lint": "shellcheck -x lib/**/*.sh",
     "fix": "shfmt -i 2 -ci -sr -w lib/**/*.sh",
     "format": "prettier --write '*.{json,md}'",
