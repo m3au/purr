@@ -1,4 +1,4 @@
-.PHONY: all test install lint format clean deep-clean docs help man background context doctor release-patch release-minor release-major publish dist completions metadata setup
+.PHONY: all test install lint format clean deep-clean docs help man background context doctor release-patch release-minor release-major publish dist completions metadata setup formula
 
 # Environment setup
 SHELL := /bin/sh
@@ -30,7 +30,7 @@ test: ## Run all tests
 clean: ## Clean build artifacts
 	@./scripts/clean.sh
 
-deep-clean: clean ## Remove all build artifacts and development dependencies
+deep-clean: ## Remove all build artifacts and development dependencies
 	@./scripts/deep-clean.sh
 
 format: ## Format source files
@@ -39,7 +39,7 @@ format: ## Format source files
 lint: ## Run linting checks
 	@shellcheck -x $(SRC_FILES)
 
-docs: man background context ## Generate all documentation
+docs: man ## Generate all documentation
 
 man: ## Generate man pages
 	@./scripts/generate-man.sh
@@ -48,7 +48,7 @@ completions: ## Generate shell completions
 	@./scripts/generate-completions.sh
 
 background: ## Generate project background documentation
-	@./scripts/generate-docs.sh background
+	@./scripts/generate-docs.sh background > docs/background.md
 
 context: ## Generate project context documentation
 	@./scripts/generate-docs.sh context
@@ -56,11 +56,12 @@ context: ## Generate project context documentation
 doctor: ## Run system checks
 	@./scripts/doctor.sh
 
-install: ## Install purr
-	@./scripts/install.sh
+install: ## Install purr (development only)
+	@echo "Not needed - use './scripts/dev.sh' for development"
 
 dist: ## Create distribution package
 	@./scripts/dist.sh "$(shell cat VERSION)"
+	@$(MAKE) formula
 
 metadata: ## Update metadata
 	@./scripts/metadata.sh
@@ -79,3 +80,6 @@ publish: ## Publish a release
 
 setup: ## Setup development environment
 	@./scripts/setup.sh
+
+formula: ## Generate Homebrew formula
+	@./scripts/generate-formula.sh "$(shell cat VERSION)"

@@ -3,7 +3,8 @@
 # Create docs directory if it doesn't exist
 mkdir -p docs
 
-# Write output to context.md
+OUTPUT_FILE="docs/context.md"
+
 {
     echo "# Project Context"
     echo "Generated: $(date)"
@@ -54,7 +55,6 @@ mkdir -p docs
         echo "- Optional dependencies not defined yet"
     fi
 
-} > docs/context.md
+} > "$OUTPUT_FILE"
 
-# Print success message
 echo "✓ Generated context.md"

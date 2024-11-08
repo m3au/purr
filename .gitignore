@@ -1,6 +1,11 @@
 # Build artifacts
 dist/
-tests/root/dist/
+tests/dist/
+tests/root/
+coverage/
+
+# Temporary files
+*.tmp
 
 # Generated documentation
 docs/background.md
@@ -10,9 +15,6 @@ docs/purr.1
 # Generated completions
 src/completion/completion.bash
 src/completion/completion.zsh
-
-# Coverage reports
-tests/coverage/
 
 # Development environment
 .env

@@ -1,13 +1,16 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -euo pipefail
 
 echo "Cleaning build artifacts..."
 
 # Remove build directories
-rm -rf tests/root dist
+rm -rf dist tests/dist tests/dev
 
 # Clean ignored files
 git clean -fXd
 
-echo "✓ Cleaned development environment"
+# Remove coverage folder from root
+rm -rf coverage
+
+echo "✓ Cleaned build artifacts"

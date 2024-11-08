@@ -1,30 +1,27 @@
-#!/bin/bash
+#!/bin/sh
 
-set -eu
+set -euo pipefail
 
-# Source metadata
-. ./metadata.sh
+VERSION=${1:-$(cat VERSION)}
+DESCRIPTION="Key management and authentication tool"
+HOMEPAGE="https://github.com/axelop/purr"
+LICENSE="MIT"
 
-# Calculate SHA256 of the release tarball
-SHA256=$(shasum -a 256 "dist/purr-${VERSION}.tar.gz" | cut -d' ' -f1)
+# Calculate SHA256 of the tarball if it exists
+if [ -f "dist/purr-${VERSION}.tar.gz" ]; then
+    SHA256=$(shasum -a 256 "dist/purr-${VERSION}.tar.gz" | cut -d' ' -f1)
+else
+    echo "Error: dist/purr-${VERSION}.tar.gz not found" >&2
+    exit 1
+fi
 
-# Generate dependencies
-DEPENDS_STR=""
-for dep in "${DEPENDS[@]}"; do
-    IFS=':' read -r name type <<< "$dep"
-    if [ -n "$type" ]; then
-        DEPENDS_STR+="  depends_on \"$name\" => :$type\n"
-    else
-        DEPENDS_STR+="  depends_on \"$name\"\n"
-    fi
-done
-
-# Generate formula from template
+# Replace variables in template
 sed \
-    -e "s/\${DESCRIPTION}/$DESCRIPTION/" \
-    -e "s/\${HOMEPAGE}/$HOMEPAGE/" \
-    -e "s/\${VERSION}/$VERSION/" \
-    -e "s/\${SHA256}/$SHA256/" \
-    -e "s/\${LICENSE}/$LICENSE/" \
-    -e "s/\${DEPENDS}/$DEPENDS_STR/" \
+    -e "s/\${VERSION}/${VERSION}/g" \
+    -e "s/\${DESCRIPTION}/${DESCRIPTION}/g" \
+    -e "s/\${HOMEPAGE}/${HOMEPAGE}/g" \
+    -e "s/\${SHA256}/${SHA256}/g" \
+    -e "s/\${LICENSE}/${LICENSE}/g" \
     Formula/purr.rb.in > Formula/purr.rb
+
+echo "✓ Generated Formula/purr.rb"

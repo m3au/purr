@@ -3,19 +3,19 @@
 set -eu
 
 DEBUG="${DEBUG:-0}"
-DEV_DIR="tests/dev"
 
 setup_directories() {
     local verbose=""
     [ "$DEBUG" = "1" ] && verbose="-v"
 
-    # Create development directories
-    mkdir -p $verbose "$DEV_DIR"/.config/purr
-    mkdir -p $verbose "$DEV_DIR"/.local/share/purr/backups
-    mkdir -p $verbose "$DEV_DIR"/.cache/purr
-    mkdir -p $verbose "$DEV_DIR"/.local/share/zsh/site-functions
-    mkdir -p $verbose "$DEV_DIR"/dist/{man,completion}
-    mkdir -p $verbose dist/{man,completion}
+    # Create test environment directories
+    mkdir -p $verbose tests/root/.config/purr
+    mkdir -p $verbose tests/root/.local/share/purr/backups
+    mkdir -p $verbose tests/root/.cache/purr
+    mkdir -p $verbose tests/root/.local/share/zsh/site-functions
+
+    # Create test distribution directory
+    mkdir -p $verbose tests/dist/{man,completion}
 
     # Create source directories
     mkdir -p $verbose src/{bin,lib,completion}
@@ -37,7 +37,7 @@ show_environment() {
 
     echo "Setting up development environment..."
     echo "Environment variables set:"
-    echo "  PURR_DEV_MODE=$PURR_DEV_MODE"
+    echo "  PURR_TEST=$PURR_TEST"
     echo "  PURR_ROOT=$PURR_ROOT"
     echo "  PURR_LIB=$PURR_LIB"
     echo "  PURR_BIN=$PURR_BIN"

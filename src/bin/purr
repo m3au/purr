@@ -16,7 +16,7 @@ export PURR_ROOT PURR_LIB PURR_VERSION
 
 . "$PURR_LIB/commands/status/status.sh"
 . "$PURR_LIB/commands/system/lock.sh"
-. "$PURR_LIB/commands/system/install.sh"
+. "$PURR_LIB/commands/system/init.sh"
 . "$PURR_LIB/commands/system/uninstall.sh"
 . "$PURR_LIB/commands/system/update.sh"
 . "$PURR_LIB/commands/system/verify.sh"
@@ -35,7 +35,7 @@ Commands:
   status      Show current status
   keys        Manage SSH and GPG keys
   lock        Unload keys and lock agents
-  install     Install or reinstall purr
+  init        Initialize purr runtime dependencies
   uninstall   Remove purr
   update      Check for and install updates
   doctor      Run system diagnostics
@@ -59,7 +59,7 @@ main() {
         status) shift; status_command "$@" ;;
         keys) shift; keys_command "$@" ;;
         lock) shift; lock_command "$@" ;;
-        install) shift; install_command "$@" ;;
+        init) shift; init_command "$@" ;;
         uninstall) shift; uninstall_command "$@" ;;
         update) shift; update_command "$@" ;;
         doctor) shift; doctor_command "$@" ;;

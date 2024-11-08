@@ -23,7 +23,7 @@ Generated: $(date)
 
 ## About This Document
 
-$(cat scripts/background.ai)
+$(cat scripts/background.sh)
 
 ## Project Rules
 $(grep -h "^[0-9]" docs/background.md 2>/dev/null || echo "No rules defined yet")
@@ -56,7 +56,7 @@ EOF
 # Project Status
 Generated: $(date)
 
-$(cat scripts/context.ai)
+$(cat scripts/context.sh)
 
 ## Notes
 - Remember to maintain test coverage while developing

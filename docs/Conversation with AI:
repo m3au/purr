@@ -1,0 +1,36 @@
+Conversation with AI:
+
+Looking at the codebase, here are the key suggested changes again:
+Installation Script Location:
+Move install to scripts/install.sh to match other scripts
+This maintains consistency with our script organization
+Test Environment:
+Create scripts/test-env.sh to handle test environment setup
+Move from Makefile:
+export PURR_TEST := 1
+export PURR_ROOT := $(TEST_ROOT)
+export PURR_DATA := $(TEST_ROOT)/.local/share
+export PURR_CONFIG := $(TEST_ROOT)/.config
+export PURR_CACHE := $(TEST_ROOT)/.cache
+Version Management:
+Replace hardcoded VERSION="0.0.1" in install script with:
+VERSION=$(cat VERSION 2>/dev/null || echo "0.0.1")
+Logging Consistency:
+Move logging functions from install script to src/lib/core/common.sh
+Use the same logging functions across all scripts
+5. Test Distribution Path:
+Make test distribution path consistent:
+TEST_DIST="tests/dev/dist/purr-test.tar.gz"
+Shell Detection:
+Improve shell detection to handle more edge cases
+Add support for more shells
+Cleanup Handling:
+Make cleanup trap more comprehensive
+Handle interrupted installations
+Test Prerequisites:
+Make test environment setup a prerequisite in Makefile
+Ensure clean test environment for each test run
+Error Messages:
+Add more context to error messages
+Include troubleshooting hints
+Would you like me to explain any of these changes in more detail?
