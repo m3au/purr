@@ -2,7 +2,7 @@
 
 set -eu
 
-COVERAGE_DIR="tests/dev/coverage"
+COVERAGE_DIR="tests/coverage"
 TMPDIR="${TMPDIR:-/tmp/shellspec-tests}"
 
 mkdir -p "$TMPDIR" "$COVERAGE_DIR"

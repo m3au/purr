@@ -21,17 +21,23 @@ include metadata.sh
 help: ## Show this help
 	@./scripts/help.sh
 
-test: ## Run all tests
-	@echo "Setting up test environment..."
-	@mkdir -p $(PURR_DATA) $(PURR_CONFIG) $(PURR_CACHE)
-	@cd tests && SHELLSPEC_LOAD_PATH=. shellspec --shell /bin/bash --quiet **/*_spec.sh
-	@echo "✓ Tests complete"
+background: ## Generate project background documentation
+	@./scripts/generate-docs.sh background > docs/background.md
 
-clean: ## Clean build artifacts
+setup: ## Setup development environment
+	@./scripts/setup.sh
+
+doctor: ## Run developer system checks
+	@./scripts/doctor.sh
+
+clean: ## Clean distribution artifacts and development environment
 	@./scripts/clean.sh
 
-deep-clean: ## Remove all build artifacts and development dependencies
+deep-clean: ## Also clean development dependencies
 	@./scripts/deep-clean.sh
+
+test: ## Run all tests
+	@./scripts/test.sh
 
 format: ## Format source files
 	@shfmt -i 2 -ci -sr -w $(SRC_FILES)
@@ -39,25 +45,8 @@ format: ## Format source files
 lint: ## Run linting checks
 	@shellcheck -x $(SRC_FILES)
 
-docs: man ## Generate all documentation
-
-man: ## Generate man pages
-	@./scripts/generate-man.sh
-
-completions: ## Generate shell completions
-	@./scripts/generate-completions.sh
-
-background: ## Generate project background documentation
-	@./scripts/generate-docs.sh background > docs/background.md
-
-context: ## Generate project context documentation
-	@./scripts/generate-docs.sh context
-
-doctor: ## Run system checks
-	@./scripts/doctor.sh
-
-install: ## Install purr (development only)
-	@echo "Not needed - use './scripts/dev.sh' for development"
+publish: ## Publish a release
+	@./scripts/publish.sh "$(VERSION)"
 
 dist: ## Create distribution package
 	@./scripts/dist.sh "$(shell cat VERSION)"
@@ -75,11 +64,11 @@ release-minor: ## Release a minor version
 release-major: ## Release a major version
 	@$(MAKE) publish NEXT_VERSION=$(shell ./scripts/version.sh major)
 
-publish: ## Publish a release
-	@./scripts/publish.sh "$(VERSION)"
+man: ## Generate man pages
+	@./scripts/generate-man.sh
 
-setup: ## Setup development environment
-	@./scripts/setup.sh
+completions: ## Generate shell completions
+	@./scripts/generate-completions.sh
 
 formula: ## Generate Homebrew formula
 	@./scripts/generate-formula.sh "$(shell cat VERSION)"
