@@ -24,7 +24,7 @@
       ".cspell.json": true,
       ".editorconfig": true,
       ".markdownlint.json": true,
-      ".gitignore": true,
+      // ".gitignore": true,
       ".gitattributes": true
     }
   },

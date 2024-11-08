@@ -1,18 +1,18 @@
 # Shell type and behavior
-shell=sh
+shell=bash
 external-sources=true
 source-path=SCRIPTDIR
+source-path=src/lib
 norc=true
 
 # Disabled checks
 disable=SC1090  # Can't follow non-constant source
 disable=SC1091  # Can't follow non-constant source
-disable=SC3044  # In POSIX sh, 'local' is undefined
 disable=SC2317  # Command appears to be unreachable
 
 # Test exclusions
-exclude=.shellspec
-exclude=spec_helper.sh
+exclude=tests/*.spec
+exclude=tests/spec_helper.sh
 
 # Editor integration
 enable=true

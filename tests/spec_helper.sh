@@ -1,28 +1,46 @@
 #!/usr/bin/env bash
 
-# Get the directory of this script
-DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$DIR/.." && pwd)"
-
-# Test framework functions
-describe() {
-    echo "Testing: $1"
+# Set up test environment
+setup_test_env() {
+  # Store original values
+  _OLD_PATH=$PATH
+  _OLD_HOME=$HOME
+  _OLD_SHELL=$SHELL
+  _OLD_XDG_DATA_HOME=$XDG_DATA_HOME
 }
 
-it() {
-    echo "  - $1"
+# Restore original environment
+restore_test_env() {
+  # Restore original values
+  PATH=$_OLD_PATH
+  HOME=$_OLD_HOME
+  SHELL=$_OLD_SHELL
+  XDG_DATA_HOME=$_OLD_XDG_DATA_HOME
+
+  # Clean up temp vars
+  unset _OLD_PATH _OLD_HOME _OLD_SHELL _OLD_XDG_DATA_HOME
 }
 
-assert() {
-    if [ "$1" = "$2" ]; then
-        echo "    ✓ Pass"
-        return 0
-    else
-        echo "    ✗ Fail: Expected '$2', got '$1'"
-        return 1
-    fi
+# Helper functions for tests
+assert_file_exists() {
+  [ -f "$1" ]
 }
 
-end() {
-    :  # No-op
+assert_dir_exists() {
+  [ -d "$1" ]
 }
+
+assert_file_contains() {
+  local file="$1"
+  local pattern="$2"
+  grep -q "$pattern" "$file"
+}
+
+assert_file_mode() {
+  local file="$1"
+  local mode="$2"
+  [ "$(stat -f %p "$file")" = "$mode" ]
+}
+
+# Set up test environment when helper is sourced
+setup_test_env

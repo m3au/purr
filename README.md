@@ -11,6 +11,7 @@ A lightweight shell utility that integrates 1Password, SSH, and GPG key manageme
 - [Setup](#setup)
 - [Contributing](#contributing)
 - [License](#license)
+- [TODO](#todo)
 
 ## Features
 
@@ -171,3 +172,19 @@ Check out our [Development Guide](docs/guides/development/README.md).
 ## License
 
 MIT - See [LICENSE](LICENSE)
+
+## TODO
+
+- [ ] add kcov to Makefile back
+- [ ] add man page generation to Makefile
+- [ ] add coverage reporting to Makefile
+- [ ] add linting to Makefile
+- [ ] add formatting to Makefile
+- [ ] add docs to Makefile
+- [ ] add install docs to README
+- [ ] add setup docs to README
+- [ ] add usage docs to README
+- [ ] add security docs to README
+- [ ] add development docs to README
+- [ ] add testing docs to README
+- [ ] add Makefile docs to README

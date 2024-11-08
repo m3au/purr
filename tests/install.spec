@@ -1,77 +1,79 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-Describe 'install command'
+Describe 'Install Script'
   setup() {
-    export XDG_DATA_HOME="$TMPDIR/local/share"
-    export XDG_CONFIG_HOME="$TMPDIR/config"
-    export XDG_CACHE_HOME="$TMPDIR/cache"
-    mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_CACHE_HOME"
+    TEST_HOME=$(mktemp -d)
+    export HOME="$TEST_HOME"
+    export XDG_DATA_HOME="$TEST_HOME/.local/share"
+    export SHELL="/bin/zsh"
+    export QUIET=0
+    export PURR_TEST=1
+
+    mkdir -p "$XDG_DATA_HOME"
+    chmod -R 755 "$TEST_HOME"
+    touch "$HOME/.zshrc"
+
+    ORIG_PWD="$PWD"
+    cd "$PURR_ROOT" || exit 1
   }
 
   cleanup() {
-    rm -rf "$TMPDIR"/*
+    cd "$ORIG_PWD" || exit 1
+    if [ -d "$TEST_HOME" ]; then
+      chmod -R 755 "$TEST_HOME" 2>/dev/null || true
+      rm -rf "$TEST_HOME"
+    fi
+    unset HOME XDG_DATA_HOME SHELL QUIET ORIG_PWD PURR_TEST
   }
 
   BeforeEach 'setup'
   AfterEach 'cleanup'
 
-  It 'creates correct directory structure'
-    When call purr install
-    The status should be success
-    The directory "$XDG_DATA_HOME/purr" should exist
-    The directory "$XDG_DATA_HOME/purr/bin" should exist
-    The directory "$XDG_DATA_HOME/purr/lib" should exist
-    The file "$XDG_DATA_HOME/purr/_purr" should exist
+  Describe 'Installation'
+    Example 'performs a clean installation'
+      run_install() {
+        bash "$PURR_ROOT/install" 2>&1
+      }
+      When call run_install
+      The status should be success
+      The output should include "Installing purr"
+      Path "$XDG_DATA_HOME/purr" should be directory
+      Path "$XDG_DATA_HOME/purr/bin/purr" should be executable
+      Path "$XDG_DATA_HOME/purr/_purr" should be file
+      The contents of file "$HOME/.zshrc" should include 'source "${XDG_DATA_HOME:-$HOME/.local/share}/purr/_purr"'
+    End
+
+    Example 'fails if already installed'
+      run_install_existing() {
+        mkdir -p "$XDG_DATA_HOME/purr"
+        bash "$PURR_ROOT/install" 2>&1
+      }
+      When call run_install_existing
+      The status should be failure
+      The output should include "Existing installation found"
+    End
   End
 
-  It 'installs required files'
-    When call purr install
-    The status should be success
-    The file "$XDG_DATA_HOME/purr/bin/purr" should exist
-    The file "$XDG_DATA_HOME/purr/bin/purr" should be executable
-  End
+  Describe 'Uninstallation'
+    Example 'handles uninstall command'
+      run_uninstall() {
+        bash "$PURR_ROOT/install" 2>&1
+        bash "$PURR_ROOT/install" uninstall 2>&1
+      }
+      When call run_uninstall
+      The status should be success
+      The output should include "Uninstalling purr"
+      Path "$XDG_DATA_HOME/purr" should not be directory
+      The contents of file "$HOME/.zshrc" should not include "purr/_purr"
+    End
 
-  It 'creates default configuration'
-    When call purr install
-    The status should be success
-    The file "$XDG_CONFIG_HOME/purr/config" should exist
-  End
-
-  It 'preserves existing configuration during reinstall'
-    mkdir -p "$XDG_CONFIG_HOME/purr"
-    echo "test_setting=value" > "$XDG_CONFIG_HOME/purr/config"
-
-    When call purr install
-    The status should be success
-    The file "$XDG_CONFIG_HOME/purr/config" should contain "test_setting=value"
-  End
-
-  It 'sets correct permissions'
-    When call purr install
-    The status should be success
-    The file "$XDG_DATA_HOME/purr/_purr" should have permission 600
-    The file "$XDG_CONFIG_HOME/purr/config" should have permission 600
-  End
-
-  It 'creates backup of existing installation'
-    # First installation
-    When call purr install
-    The status should be success
-
-    # Create test data
-    echo "test data" > "$XDG_DATA_HOME/purr/test.txt"
-
-    # Reinstall
-    When call purr install
-    The status should be success
-    The directory "$XDG_DATA_HOME/purr.bak" should exist
-    The file "$XDG_DATA_HOME/purr.bak/test.txt" should exist
-  End
-
-  It 'handles development mode installation'
-    When call purr install --dev
-    The status should be success
-    The file "$XDG_DATA_HOME/purr/bin/purr" should be symlink
-    The file "$XDG_DATA_HOME/purr/lib" should be symlink
+    Example 'handles uninstall when not installed'
+      run_uninstall_clean() {
+        bash "$PURR_ROOT/install" uninstall 2>&1
+      }
+      When call run_uninstall_clean
+      The status should be success
+      The output should include "purr is not installed"
+    End
   End
 End

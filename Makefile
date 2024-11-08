@@ -1,12 +1,12 @@
-.PHONY: all test install lint format clean coverage man doctor
+.PHONY: all test install lint format clean coverage man doctor publish release-patch release-minor release-major test-dist
 
-SHELL := /bin/bash
+SHELL := /bin/sh
 PROJECT_ROOT := $(shell pwd)
 SRC_DIR := src
 TEST_DIR := tests
 LIB_DIR := $(SRC_DIR)/lib
 BIN_DIR := $(SRC_DIR)/bin
-DEV_DIR := dev
+DEV_DIR := tests/dev
 
 TEST_FILES := $(wildcard $(TEST_DIR)/*.spec)
 SRC_FILES := $(shell find $(SRC_DIR) -name '*.sh')
@@ -19,37 +19,51 @@ export XDG_CONFIG_HOME := $(DEV_DIR)/.config
 export XDG_DATA_HOME := $(DEV_DIR)/.local/share
 export XDG_CACHE_HOME := $(DEV_DIR)/.cache
 
+# Add debug control
+DEBUG ?= 0
+
+# [x] Test if it works
 setup: $(DEV_DIR)
-	@echo "Setting up development environment..."
+	@if [ "$(DEBUG)" = "1" ]; then \
+		echo "Setting up development environment..."; \
+		echo "Environment variables set:"; \
+		echo "  PURR_DEV_MODE=$(PURR_DEV_MODE)"; \
+		echo "  PURR_ROOT=$(PURR_ROOT)"; \
+		echo "  PURR_LIB=$(PURR_LIB)"; \
+		echo "  PURR_BIN=$(PURR_BIN)"; \
+		echo "  XDG_CONFIG_HOME=$(XDG_CONFIG_HOME)"; \
+		echo "  XDG_DATA_HOME=$(XDG_DATA_HOME)"; \
+		echo "  XDG_CACHE_HOME=$(XDG_CACHE_HOME)"; \
+	fi
 	@command -v shellcheck >/dev/null || brew install shellcheck
 	@command -v shfmt >/dev/null || brew install shfmt
 	@command -v kcov >/dev/null || brew install kcov
 	@command -v go-md2man >/dev/null || brew install go-md2man
-	@echo "Environment variables set:"
-	@echo "  PURR_DEV_MODE=$(PURR_DEV_MODE)"
-	@echo "  PURR_ROOT=$(PURR_ROOT)"
-	@echo "  PURR_LIB=$(PURR_LIB)"
-	@echo "  PURR_BIN=$(PURR_BIN)"
-	@echo "  XDG_CONFIG_HOME=$(XDG_CONFIG_HOME)"
-	@echo "  XDG_DATA_HOME=$(XDG_DATA_HOME)"
-	@echo "  XDG_CACHE_HOME=$(XDG_CACHE_HOME)"
+	@command -v shellspec >/dev/null || brew install shellspec
 
 $(DEV_DIR):
-	mkdir -p $(DEV_DIR)/.config/purr
-	mkdir -p $(DEV_DIR)/.local/share/purr/backups
-	mkdir -p $(DEV_DIR)/.cache/purr
-	mkdir -p $(DEV_DIR)/.local/share/zsh/site-functions
-	chmod +x $(TEST_DIR)/*.spec
-	@[ -d "$(BIN_DIR)" ] && chmod +x $(BIN_DIR)/* || true
+	@if [ "$(DEBUG)" = "1" ]; then \
+		mkdir -pv $(DEV_DIR)/.config/purr; \
+		mkdir -pv $(DEV_DIR)/.local/share/purr/backups; \
+		mkdir -pv $(DEV_DIR)/.cache/purr; \
+		mkdir -pv $(DEV_DIR)/.local/share/zsh/site-functions; \
+		mkdir -pv $(DEV_DIR)/dist; \
+		chmod -v +x $(TEST_DIR)/*.spec; \
+		[ -d "$(BIN_DIR)" ] && chmod -v +x $(BIN_DIR)/* || true; \
+	else \
+		mkdir -p $(DEV_DIR)/.config/purr; \
+		mkdir -p $(DEV_DIR)/.local/share/purr/backups; \
+		mkdir -p $(DEV_DIR)/.cache/purr; \
+		mkdir -p $(DEV_DIR)/.local/share/zsh/site-functions; \
+		mkdir -p $(DEV_DIR)/dist; \
+		chmod +x $(TEST_DIR)/*.spec; \
+		[ -d "$(BIN_DIR)" ] && chmod +x $(BIN_DIR)/* || true; \
+	fi
 
+# [x] Test if it works
 test: setup
-	@for test in $(TEST_FILES); do \
-		$$test || exit 1; \
-	done
-
-coverage: setup
-	kcov --include-pattern=.sh --exclude-pattern=.spec. coverage $(TEST_FILES)
-	@echo "Coverage report available at coverage/index.html"
+	@[ "$(DEBUG)" = "1" ] && echo "Running tests..." || true
+	@cd tests && SHELLSPEC_LOAD_PATH=. shellspec --shell /bin/bash *.spec
 
 lint: setup
 	shellcheck -x $(SRC_FILES)
@@ -62,21 +76,22 @@ man: docs/purr.1.md
 
 clean:
 	rm -rf $(DEV_DIR)
-	rm -rf coverage
 	git clean -fXd
 	@echo "Cleaned development environment"
 
+# [x] Test if it works
 deep-clean: clean
 	brew uninstall shellcheck shfmt kcov go-md2man || true
 	@echo "Removed development dependencies"
 
-install: setup
-	$(BIN_DIR)/purr install
+install: setup ## Install purr
+	@echo "Installing purr..."
+	@./install
 
-uninstall:
-	$(BIN_DIR)/purr uninstall
+uninstall: ## Uninstall purr
+	@echo "Uninstalling purr..."
+	@./install uninstall
 
-# Documentation generation
 DOCS_DIR := docs
 BACKGROUND_MD := $(DOCS_DIR)/background.md
 CONTEXT_MD := $(DOCS_DIR)/context.md
@@ -227,3 +242,45 @@ doctor:
 	@[ -n "$(XDG_CONFIG_HOME)" ] && echo "✓ XDG_CONFIG_HOME is set" || echo "✗ XDG_CONFIG_HOME not set"
 	@[ -n "$(XDG_DATA_HOME)" ] && echo "✓ XDG_DATA_HOME is set" || echo "✗ XDG_DATA_HOME not set"
 	@[ -n "$(XDG_CACHE_HOME)" ] && echo "✓ XDG_CACHE_HOME is set" || echo "✗ XDG_CACHE_HOME not set"
+
+# Version management
+CURRENT_VERSION ?= $(shell cat VERSION 2>/dev/null || echo "0.0.0")
+NEXT_VERSION ?= $(shell echo $(CURRENT_VERSION) | awk -F. '{$$NF = $$NF + 1;} 1' | sed 's/ /./g')
+
+# Publishing targets
+publish: ## Create a new release
+	@echo "Publishing version $(NEXT_VERSION)..."
+	@echo "$(NEXT_VERSION)" > VERSION
+	@$(MAKE) dist
+	@if [ "${SKIP_GIT:-0}" = "0" ]; then \
+		git add VERSION dist/purr-$(NEXT_VERSION).tar.gz; \
+		git commit -m "Release v$(NEXT_VERSION)"; \
+		git tag -a "v$(NEXT_VERSION)" -m "Release v$(NEXT_VERSION)"; \
+	fi
+	@if [ "${SKIP_TEST:-0}" = "0" ]; then \
+		$(MAKE) test test-dist; \
+	fi
+	@echo "✨ Published v$(NEXT_VERSION)"
+
+dist: clean ## Create distribution archive
+	@echo "Creating distribution archive..."
+	@mkdir -p dist/purr-$(CURRENT_VERSION)
+	@cp -r src LICENSE README.md VERSION install dist/purr-$(CURRENT_VERSION)/
+	@cd dist && tar czf purr-$(CURRENT_VERSION).tar.gz purr-$(CURRENT_VERSION)
+	@rm -rf dist/purr-$(CURRENT_VERSION)
+
+release-patch: ## Increment patch version (0.0.X)
+	@$(MAKE) publish NEXT_VERSION=$(shell echo $(CURRENT_VERSION) | awk -F. '{$$NF = $$NF + 1;} 1' | sed 's/ /./g')
+
+release-minor: ## Increment minor version (0.X.0)
+	@$(MAKE) publish NEXT_VERSION=$(shell echo $(CURRENT_VERSION) | awk -F. '{$$2 = $$2 + 1; $$3 = 0;} 1' | sed 's/ /./g')
+
+release-major: ## Increment major version (X.0.0)
+	@$(MAKE) publish NEXT_VERSION=$(shell echo $(CURRENT_VERSION) | awk -F. '{$$1 = $$1 + 1; $$2 = 0; $$3 = 0;} 1' | sed 's/ /./g')
+
+test-dist: ## Create test distribution archive
+	@echo "Creating test distribution archive..."
+	@mkdir -p $(DEV_DIR)/dist/purr-test
+	@cp -r src LICENSE README.md VERSION install $(DEV_DIR)/dist/purr-test/
+	@cd $(DEV_DIR)/dist && tar czf purr-test.tar.gz purr-test
+	@rm -rf $(DEV_DIR)/dist/purr-test
