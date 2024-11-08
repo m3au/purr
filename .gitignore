@@ -9,6 +9,9 @@
 
 # Logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Coverage
 coverage/
@@ -23,3 +26,37 @@ docs/goal.md
 
 # Development environment
 tests/dev/
+
+# Build artifacts
+dist/
+
+# Generated documentation
+docs/purr.1
+docs/background.md
+docs/context.md
+
+# Generated completions
+src/completion/completion.bash
+src/completion/completion.zsh
+
+# Coverage reports
+tests/coverage/
+tests/dev/coverage/
+
+# Temporary files
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment
+.env
+.envrc
+
+# Dependencies
+node_modules/
+vendor/
+
+# Test artifacts
+*.test
+*.spec.out

@@ -23,22 +23,17 @@ EOF
     cat > /tmp/shellspec <<'EOF'
 #!/bin/sh
 # Create coverage directory and file
-cd "$PWD"
-mkdir -p tests/dev/coverage
-touch tests/dev/coverage/index.html
-chmod 644 tests/dev/coverage/index.html
+cd "$PWD/tests"
+mkdir -p dev/coverage
+touch dev/coverage/index.html
+chmod 644 dev/coverage/index.html
 
 # Call kcov with absolute path
 /tmp/kcov "$PWD/tests/dev/coverage" "$@"
 
 # Double check file exists
-touch tests/dev/coverage/index.html
-chmod 644 tests/dev/coverage/index.html
-
-# Create coverage file in the right location
-mkdir -p coverage
-touch coverage/index.html
-chmod 644 coverage/index.html
+touch dev/coverage/index.html
+chmod 644 dev/coverage/index.html
 exit 0
 EOF
     chmod +x /tmp/shellspec
@@ -63,7 +58,7 @@ EOF
   It 'generates coverage report'
     When run script ./scripts/coverage.sh
     The status should be success
-    The path 'coverage/index.html' should be file
+    The path 'tests/dev/coverage/index.html' should be file
     The output should include 'Running tests with coverage'
     The output should include 'Coverage report available at: tests/dev/coverage/index.html'
   End

@@ -6,6 +6,8 @@ Describe 'completions.sh'
 
   setup_completions() {
     mkdir -p tests/dev/dist/completion docs
+
+    # Create both .md and generated man page
     cat > docs/purr.1.md <<EOF
 # NAME
 purr - Key management utility
@@ -15,6 +17,19 @@ status
     Show current state
 keys
     Manage SSH and GPG keys
+EOF
+
+    cat > docs/purr.1 <<EOF
+.TH PURR 1
+.SH NAME
+purr \- Key management utility
+.SH COMMANDS
+.TP
+.B status
+Show current state
+.TP
+.B keys
+Manage SSH and GPG keys
 EOF
 
     # Mock go-md2man
