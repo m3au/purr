@@ -1,9 +1,11 @@
 # Done
+
+Scripts tested manually:
 ✓ make
 ✓ make help
 ✓ make clean
 ✓ make deep-clean
 ✓ make background
-✓ make context
 ✓ make setup
+make test
 

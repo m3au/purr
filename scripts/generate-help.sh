@@ -3,9 +3,7 @@
 set -euo pipefail
 
 # Print header
-echo "Usage: make [target]"
-echo ""
-echo "Targets:"
+echo "Commands:"
 
 # Format and print targets
 awk '

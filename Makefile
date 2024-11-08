@@ -1,4 +1,4 @@
-.PHONY: all test install lint format clean deep-clean docs help man background context doctor release-patch release-minor release-major publish dist completions metadata setup formula
+.PHONY: all test install lint format clean docs help man background context doctor release-patch release-minor release-major publish dist completions metadata setup formula
 
 # Environment setup
 SHELL := /bin/sh
@@ -16,13 +16,13 @@ export PURR_DATA := $(TEST_ROOT)/.local/share
 export PURR_CONFIG := $(TEST_ROOT)/.config
 export PURR_CACHE := $(TEST_ROOT)/.cache
 
-include metadata.sh
+# include metadata.sh
 
 help: ## Show this help
-	@./scripts/help.sh
+	@./scripts/generate-help.sh
 
 background: ## Generate project background documentation
-	@./scripts/generate-docs.sh background > docs/background.md
+	@./scripts/generate-background.sh > BACKGROUND.md
 
 setup: ## Setup development environment
 	@./scripts/setup.sh
@@ -30,45 +30,39 @@ setup: ## Setup development environment
 doctor: ## Run developer system checks
 	@./scripts/doctor.sh
 
-clean: ## Clean distribution artifacts and development environment
+clean: ## Clean build artifacts and development environment
 	@./scripts/clean.sh
 
-deep-clean: ## Also clean development dependencies
-	@./scripts/deep-clean.sh
+# test: ## Run all tests
+# 	@./scripts/test.sh
 
-test: ## Run all tests
-	@./scripts/test.sh
+# format: ## Format source files
+# 	@shfmt -i 2 -ci -sr -w $(SRC_FILES)
 
-format: ## Format source files
-	@shfmt -i 2 -ci -sr -w $(SRC_FILES)
+# lint: ## Run linting checks
+# 	@shellcheck -x $(SRC_FILES)
 
-lint: ## Run linting checks
-	@shellcheck -x $(SRC_FILES)
+# publish: ## Publish a release
+# 	@./scripts/publish.sh "$(VERSION)"
 
-publish: ## Publish a release
-	@./scripts/publish.sh "$(VERSION)"
+# dist: ## Create distribution package
+# 	@./scripts/dist.sh "$(shell cat VERSION)"
+# 	@$(MAKE) formula
 
-dist: ## Create distribution package
-	@./scripts/dist.sh "$(shell cat VERSION)"
-	@$(MAKE) formula
+# release-patch: ## Release a patch version
+# 	@$(MAKE) publish NEXT_VERSION=$(shell ./scripts/version.sh patch)
 
-metadata: ## Update metadata
-	@./scripts/metadata.sh
+# release-minor: ## Release a minor version
+# 	@$(MAKE) publish NEXT_VERSION=$(shell ./scripts/version.sh minor)
 
-release-patch: ## Release a patch version
-	@$(MAKE) publish NEXT_VERSION=$(shell ./scripts/version.sh patch)
+# release-major: ## Release a major version
+# 	@$(MAKE) publish NEXT_VERSION=$(shell ./scripts/version.sh major)
 
-release-minor: ## Release a minor version
-	@$(MAKE) publish NEXT_VERSION=$(shell ./scripts/version.sh minor)
+# man: ## Generate man pages
+# 	@./scripts/generate-man.sh
 
-release-major: ## Release a major version
-	@$(MAKE) publish NEXT_VERSION=$(shell ./scripts/version.sh major)
+# completions: ## Generate shell completions
+# 	@./scripts/generate-completions.sh
 
-man: ## Generate man pages
-	@./scripts/generate-man.sh
-
-completions: ## Generate shell completions
-	@./scripts/generate-completions.sh
-
-formula: ## Generate Homebrew formula
-	@./scripts/generate-formula.sh "$(shell cat VERSION)"
+# formula: ## Generate Homebrew formula
+# 	@./scripts/generate-formula.sh "$(shell cat VERSION)"

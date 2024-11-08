@@ -2,7 +2,7 @@
 
 # Set up test environment
 setup_test_env() {
-    # Use tests/root as our test home
+    # Set up environment variables
     export HOME="$PWD/tests/root"
     export XDG_CONFIG_HOME="$HOME/.config"
     export XDG_DATA_HOME="$HOME/.local/share"
@@ -13,28 +13,6 @@ setup_test_env() {
     export PURR_ROOT="$PWD"
     export PURR_LIB="$PURR_ROOT/src/lib"
     export PURR_BIN="$PURR_ROOT/src/bin"
-
-    # Create minimal environment
-    mkdir -p "$XDG_CONFIG_HOME/purr"
-    mkdir -p "$XDG_DATA_HOME/purr/backups"
-    mkdir -p "$XDG_CACHE_HOME/purr"
-    mkdir -p "$HOME/.local/share/zsh/site-functions"
-    chmod -R 755 "$HOME"
-    touch "$HOME/.zshrc"
-
-    # Create test distribution directory
-    mkdir -p tests/dist/{man,completion}
-
-    # Create required files if they don't exist
-    [ -f VERSION ] || echo "0.0.0" > VERSION
-    [ -f LICENSE ] || touch LICENSE
-    [ -f README.md ] || touch README.md
-    [ -f docs/purr.1.md ] || touch docs/purr.1.md
-
-    # Create source structure if it doesn't exist
-    mkdir -p src/{bin,lib,completion}
-    [ -f src/lib/common.sh ] || touch src/lib/common.sh
-    chmod +x src/lib/common.sh
 }
 
 # Helper functions for tests

@@ -1,17 +1,5 @@
 #!/bin/sh
 
-# This script generates a comprehensive project context document (background.md)
-# specifically designed for AI assistants like Claude. It provides:
-# - Project rules and conventions
-# - File structure and organization
-# - Module dependencies and relationships
-# - Command and data flows
-# - Test coverage metrics
-# - Recent changes
-# The output is formatted in markdown with mermaid diagrams for better visualization.
-
-OUTPUT_FILE="docs/background.md"
-
 {
     echo "# Project Context"
     echo
@@ -139,4 +127,4 @@ EOF
     echo "- docs/: Documentation and man pages"
     echo
 
-} > "$OUTPUT_FILE"
+}

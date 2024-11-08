@@ -1,41 +1,55 @@
-#!/bin/bash
+#!/bin/sh
 
-set -eu
-
-check_directories() {
-    echo "- Directory structure:"
-    [ -d "tests/dev/.config/purr" ] && echo "✓ Config directory exists" || echo "✗ Missing config directory"
-    [ -d "tests/dev/.local/share/purr/backups" ] && echo "✓ Data directory exists" || echo "✗ Missing data directory"
-    [ -d "tests/dev/.cache/purr" ] && echo "✓ Cache directory exists" || echo "✗ Missing cache directory"
-}
-
-check_dependencies() {
-    echo "- Development dependencies:"
-    command -v shellcheck >/dev/null && echo "✓ shellcheck installed" || echo "✗ shellcheck missing"
-    command -v shfmt >/dev/null && echo "✓ shfmt installed" || echo "✗ shfmt missing"
-    command -v kcov >/dev/null && echo "✓ kcov installed" || echo "✗ kcov missing"
-    command -v go-md2man >/dev/null && echo "✓ go-md2man installed" || echo "✗ go-md2man missing"
-}
-
-check_permissions() {
-    echo "- File permissions:"
-    find "tests" -name "*_spec.sh" -perm +111 -print | grep -q . && echo "✓ Test files are executable" || echo "✗ Test files not executable"
-    [ -d "src/bin" ] && find "src/bin" -type f -perm +111 -print | grep -q . && echo "✓ Binary files are executable" || echo "✗ Binary files not executable"
-}
-
-check_environment() {
-    echo "- Environment variables:"
-    [ "$PURR_DEV_MODE" = "true" ] && echo "✓ PURR_DEV_MODE is set" || echo "✗ PURR_DEV_MODE not set"
-    [ -n "$PURR_ROOT" ] && echo "✓ PURR_ROOT is set" || echo "✗ PURR_ROOT not set"
-    [ -n "$PURR_LIB" ] && echo "✓ PURR_LIB is set" || echo "✗ PURR_LIB not set"
-    [ -n "$PURR_BIN" ] && echo "✓ PURR_BIN is set" || echo "✗ PURR_BIN not set"
-    [ -n "$XDG_CONFIG_HOME" ] && echo "✓ XDG_CONFIG_HOME is set" || echo "✗ XDG_CONFIG_HOME not set"
-    [ -n "$XDG_DATA_HOME" ] && echo "✓ XDG_DATA_HOME is set" || echo "✗ XDG_DATA_HOME not set"
-    [ -n "$XDG_CACHE_HOME" ] && echo "✓ XDG_CACHE_HOME is set" || echo "✗ XDG_CACHE_HOME not set"
-}
+set -euo pipefail
 
 echo "Checking development environment..."
-check_directories
-check_dependencies
-check_permissions
-check_environment
+
+# Check development dependencies first
+echo "- Development dependencies:"
+for cmd in shellcheck shfmt kcov go-md2man shellspec; do
+    if command -v "$cmd" >/dev/null 2>&1; then
+        echo "✓ $cmd installed"
+    else
+        echo "✗ $cmd not installed"
+        echo "Run 'make dev-setup' to install missing dependencies"
+    fi
+done
+
+# Source test environment setup only after checking dependencies
+. ./tests/spec_helper.sh
+setup_test_env
+
+# Check directory structure
+echo "- Directory structure:"
+for dir in "tests/root/.config/purr" "tests/root/.local/share/purr" "tests/root/.cache/purr" "tests/dist"; do
+    if [ ! -d "$dir" ]; then
+        echo "✗ Missing directory: $dir"
+        echo "Run 'make dev-setup' to create missing directories"
+    else
+        echo "✓ Found directory: $dir"
+    fi
+done
+
+# Check file permissions
+echo "- File permissions:"
+if find tests -name "*_spec.sh" -type f -perm -u+x >/dev/null; then
+    echo "✓ Test files are executable"
+else
+    echo "✗ Test files not executable"
+fi
+
+if [ -x "src/bin/purr" ]; then
+    echo "✓ Binary files are executable"
+else
+    echo "✗ Binary files not executable"
+fi
+
+# Check environment variables
+echo "- Environment variables:"
+for var in PURR_ROOT PURR_LIB PURR_BIN; do
+    if [ -n "${!var:-}" ]; then
+        echo "✓ $var set to: ${!var}"
+    else
+        echo "✗ $var not set"
+    fi
+done

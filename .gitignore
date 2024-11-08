@@ -8,8 +8,8 @@ coverage/
 *.tmp
 
 # Generated documentation
-docs/background.md
-docs/context.md
+background.md
+context.md
 docs/purr.1
 
 # Generated completions

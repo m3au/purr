@@ -1,51 +1,43 @@
-#!/bin/bash
+#!/bin/sh
 
-set -eu
+set -euo pipefail
 
-DEBUG="${DEBUG:-0}"
+echo "Setting up development environment..."
 
-setup_directories() {
-    local verbose=""
-    [ "$DEBUG" = "1" ] && verbose="-v"
-
-    # Create test environment directories
-    mkdir -p $verbose tests/root/.config/purr
-    mkdir -p $verbose tests/root/.local/share/purr/backups
-    mkdir -p $verbose tests/root/.cache/purr
-    mkdir -p $verbose tests/root/.local/share/zsh/site-functions
-
-    # Create test distribution directory
-    mkdir -p $verbose tests/dist/{man,completion}
-
-    # Create source directories
-    mkdir -p $verbose src/{bin,lib,completion}
-
-    # Create test directories
-    mkdir -p $verbose tests/scripts
-}
-
+# Install development dependencies
 setup_dependencies() {
-    command -v shellcheck >/dev/null || brew install shellcheck
-    command -v shfmt >/dev/null || brew install shfmt
-    command -v kcov >/dev/null || brew install kcov
-    command -v go-md2man >/dev/null || brew install go-md2man
-    command -v shellspec >/dev/null || brew install shellspec
+    if ! command -v brew >/dev/null; then
+        echo "ERROR: Homebrew is required. Please install it first." >&2
+        exit 1
+    fi
+
+    echo "Installing development dependencies..."
+    for pkg in shellcheck shfmt kcov go-md2man shellspec; do
+        if ! command -v "$pkg" >/dev/null 2>&1; then
+            echo "Installing $pkg..."
+            brew install "$pkg"
+        fi
+    done
 }
 
-show_environment() {
-    [ "$DEBUG" = "1" ] || return 0
+# Create project structure
+setup_directories() {
+    echo "Creating project directories..."
 
-    echo "Setting up development environment..."
-    echo "Environment variables set:"
-    echo "  PURR_TEST=$PURR_TEST"
-    echo "  PURR_ROOT=$PURR_ROOT"
-    echo "  PURR_LIB=$PURR_LIB"
-    echo "  PURR_BIN=$PURR_BIN"
-    echo "  XDG_CONFIG_HOME=$XDG_CONFIG_HOME"
-    echo "  XDG_DATA_HOME=$XDG_DATA_HOME"
-    echo "  XDG_CACHE_HOME=$XDG_CACHE_HOME"
+    # Source code structure
+    mkdir -p src/{bin,lib,completion}
+    mkdir -p src/lib/{core,commands,auth,vcs}
+    mkdir -p src/lib/commands/{config,keys,status,system}
+
+    # Test directories
+    mkdir -p tests/root tests/dist tests/scripts
+
+    # Set permissions
+    find src/bin -type f -exec chmod +x {} \;
+    find tests -name "*_spec.sh" -type f -exec chmod +x {} \;
 }
 
-setup_directories
 setup_dependencies
-show_environment
+setup_directories
+
+echo "✓ Development environment setup complete"
