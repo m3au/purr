@@ -1,0 +1,26 @@
+# Build artifacts
+dist/
+tests/root/dist/
+
+# Generated documentation
+docs/background.md
+docs/context.md
+docs/purr.1
+
+# Generated completions
+src/completion/completion.bash
+src/completion/completion.zsh
+
+# Coverage reports
+tests/coverage/
+
+# Development environment
+.env
+.envrc
+.vscode/
+*.code-workspace
+
+# OS artifacts
+.DS_Store
+*.swp
+*~

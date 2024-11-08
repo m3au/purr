@@ -1,0 +1,83 @@
+#!/bin/sh
+
+PURR_VERSION="0.0.1"
+PURR_ROOT="${PURR_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+PURR_LIB="${PURR_LIB:-$PURR_ROOT/lib}"
+export PURR_ROOT PURR_LIB PURR_VERSION
+
+. "$PURR_LIB/core/common.sh"
+. "$PURR_LIB/core/color.sh"
+. "$PURR_LIB/core/env.sh"
+. "$PURR_LIB/core/auth.sh"
+. "$PURR_LIB/core/git.sh"
+. "$PURR_LIB/core/ssh.sh"
+. "$PURR_LIB/core/gpg.sh"
+. "$PURR_LIB/core/config.sh"
+
+. "$PURR_LIB/commands/status/status.sh"
+. "$PURR_LIB/commands/system/lock.sh"
+. "$PURR_LIB/commands/system/install.sh"
+. "$PURR_LIB/commands/system/uninstall.sh"
+. "$PURR_LIB/commands/system/update.sh"
+. "$PURR_LIB/commands/system/verify.sh"
+. "$PURR_LIB/commands/system/version.sh"
+. "$PURR_LIB/commands/system/doctor.sh"
+. "$PURR_LIB/commands/config/config.sh"
+. "$PURR_LIB/commands/config/backup.sh"
+. "$PURR_LIB/commands/config/reset.sh"
+. "$PURR_LIB/commands/keys/keys.sh"
+
+help_command() {
+    cat <<EOF
+Usage: purr [command] [options]
+
+Commands:
+  status      Show current status
+  keys        Manage SSH and GPG keys
+  lock        Unload keys and lock agents
+  install     Install or reinstall purr
+  uninstall   Remove purr
+  update      Check for and install updates
+  doctor      Run system diagnostics
+  config      Manage configuration
+  backup      Backup configuration
+  reset       Reset to defaults
+  verify      Verify installation
+  version     Show version information
+  help        Show this help message
+
+Options:
+  -v, --version   Show version information
+  -h, --help      Show this help message
+EOF
+}
+
+main() {
+    case "${1:-}" in
+        -v|--version) version_command ;;
+        -h|--help) help_command ;;
+        status) shift; status_command "$@" ;;
+        keys) shift; keys_command "$@" ;;
+        lock) shift; lock_command "$@" ;;
+        install) shift; install_command "$@" ;;
+        uninstall) shift; uninstall_command "$@" ;;
+        update) shift; update_command "$@" ;;
+        doctor) shift; doctor_command "$@" ;;
+        config) shift; config_command "$@" ;;
+        backup) shift; backup_command "$@" ;;
+        reset) shift; reset_command "$@" ;;
+        verify) shift; verify_command "$@" ;;
+        version) shift; version_command "$@" ;;
+        help) help_command ;;
+        "") status_command ;;
+        *) error "Unknown command: $1"; info "Run 'purr help' for usage"; return 1 ;;
+    esac
+}
+
+if [ -n "$ZSH_VERSION" ] && [ "$0" != "purr" ]; then
+    . "$PURR_ROOT/completion/completion.sh"
+elif [ -n "$BASH_VERSION" ] && [ "$0" != "purr" ]; then
+    . "$PURR_ROOT/completion/completion.sh"
+else
+    main "$@"
+fi

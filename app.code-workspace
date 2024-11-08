@@ -1,0 +1,42 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "files.associations": {
+      "*.spec": "shellscript",
+      ".shellspec": "plaintext",
+      ".zshrc": "plaintext",
+      "docs/generated/*.md": "plaintext",
+      "Makefile": "makefile"
+    },
+    "git.enableCommitSigning": true,
+    "markdown.extension.toc.levels": "2..6",
+    "markdown.validate.enabled": true,
+    "[markdown]": {
+      "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+      "editor.formatOnSave": true
+    },
+    "files.exclude": {
+      // ".cspell.json": true,
+      // ".editorconfig": true,
+      // ".markdownlint.json": true,
+      // ".gitignore": true,
+      // ".gitattributes": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "foxundermoon.shell-format",
+      "timonwong.shellcheck",
+      "DavidAnson.vscode-markdownlint",
+      "streetsidesoftware.code-spell-checker",
+      "yzhang.markdown-all-in-one",
+      "ms-vscode.makefile-tools",
+      "editorconfig.editorconfig"
+    ]
+  },
+}

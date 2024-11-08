@@ -1,0 +1,8 @@
+--shell /bin/bash
+--pattern "*_spec.sh"
+--env PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
+--env TMPDIR=/tmp/shellspec-tests
+--env PURR_ROOT="${PWD}"
+--env PURR_LIB="${PWD}/src/lib"
+--format documentation
+--force-color

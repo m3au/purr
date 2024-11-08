@@ -1,0 +1,20 @@
+# Shell type and behavior
+shell=bash
+external-sources=true
+source-path=SCRIPTDIR
+source-path=src/lib
+norc=true
+
+# Disabled checks
+disable=SC1090  # Can't follow non-constant source
+disable=SC1091  # Can't follow non-constant source
+disable=SC2317  # Command appears to be unreachable
+
+# Test exclusions
+exclude=tests/*_spec.sh
+exclude=tests/spec_helper.sh
+
+# Editor integration
+enable=true
+enable-quick-fix=true
+check-sourced=true

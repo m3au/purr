@@ -1,0 +1,42 @@
+# Set default behavior to automatically normalize line endings
+* text=auto eol=lf
+
+# Shell scripts
+*.sh text eol=lf executable
+scripts/* text eol=lf executable
+scripts/dev.sh text eol=lf executable
+scripts/git-hooks/* text eol=lf executable
+
+# Main executable
+src/bin/purr text eol=lf executable
+
+# Documentation
+*.md text eol=lf
+docs/* text eol=lf
+*.1 text eol=lf
+
+# Test files
+tests/*.spec text eol=lf executable
+tests/spec_helper.sh text eol=lf executable
+
+# Configuration files
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+.shellcheckrc text eol=lf
+.gitattributes text eol=lf
+.gitignore text eol=lf
+
+# Shell completions
+src/completion/* text eol=lf
+
+# Make sure these files are never modified
+LICENSE text eol=lf
+SECURITY.md text eol=lf
+
+# Binary files that should not be modified
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary

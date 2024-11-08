@@ -1,0 +1,61 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "words": [
+    "alacritty",
+    "autowatch",
+    "bitwarden",
+    "Codacy",
+    "codecov",
+    "dashlane",
+    "esac",
+    "gpg",
+    "gpgconf",
+    "gpgsign",
+    "kcov",
+    "keepassxc",
+    "keychain",
+    "keyid",
+    "lastpass",
+    "markdownlint",
+    "pgrep",
+    "pinentry",
+    "pkill",
+    "POSIX",
+    "precommit",
+    "purr",
+    "sensitsive",
+    "shellcheck",
+    "shellcheckrc",
+    "shellspec",
+    "shfmt",
+    "signin",
+    "signingkey",
+    "TMPDIR",
+    "touchid",
+    "unalias",
+    "Yubi",
+    "yubikey",
+    "zshrc"
+  ],
+  "ignorePaths": [
+    "app.code-workspace",
+    ".gitignore",
+    ".cspell.json",
+    "docs/generated/*.md",
+    "docs/background.md",
+    "docs/context.md",
+    "docs/backlog.md",
+    "docs/goal.md",
+    "scripts/ai/*.ai",
+    "coverage/**",
+    "dev/**"
+  ],
+  "languageSettings": [
+    {
+      "languageId": "*",
+      "locale": "en",
+      "caseSensitive": false
+    }
+  ]
+}
