@@ -1,5 +1,5 @@
 --shell /bin/bash
---pattern "*.spec"
+--pattern "*_spec.sh"
 --env PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin
 --env TMPDIR=/tmp/shellspec-tests
 --env PURR_ROOT="${PWD}"

@@ -1,42 +1,9 @@
 #!/usr/bin/env bash
 
 Describe 'Publishing Process'
-  setup() {
-    # Create temporary test directories
-    TEST_HOME=$(mktemp -d)
-    export HOME="$TEST_HOME"
-    export XDG_DATA_HOME="$TEST_HOME/.local/share"
-    export SHELLSPEC_TMPDIR="$TEST_HOME/tmp"
-    mkdir -p "$SHELLSPEC_TMPDIR"
-
-    # Store current directory
-    ORIG_PWD="$PWD"
-    cd "$PURR_ROOT" || exit 1
-
-    # Create required files if they don't exist
-    [ -f "LICENSE" ] || touch LICENSE
-    [ -f "README.md" ] || touch README.md
-    [ -f "VERSION" ] || echo "0.0.0" > VERSION
-
-    # Ensure test environment
-    export SKIP_GIT=1
-    export SKIP_TEST=1  # Skip running tests during release
-  }
-
-  cleanup() {
-    cd "$ORIG_PWD" || exit 1
-    if [ -d "$TEST_HOME" ]; then
-      rm -rf "$TEST_HOME"
-    fi
-    # Clean up test artifacts
-    rm -f VERSION
-    rm -rf dist
-    rm -rf tests/dev/dist
-    unset HOME XDG_DATA_HOME ORIG_PWD SHELLSPEC_TMPDIR SKIP_GIT SKIP_TEST
-  }
-
-  BeforeEach 'setup'
-  AfterEach 'cleanup'
+  Include tests/spec_helper.sh
+  BeforeEach 'setup_test_env'
+  AfterEach 'cleanup_test_env'
 
   Describe 'Distribution'
     Example 'creates test distribution archive'
@@ -148,6 +115,8 @@ Describe 'Publishing Process'
           [ -f "purr-0.0.0/VERSION" ] || return 1
           [ -f "purr-0.0.0/install" ] || return 1
           [ -x "purr-0.0.0/src/bin/purr" ] || return 1
+          [ -f "purr-0.0.0/src/completion/completion.zsh" ] || return 1
+          [ -f "purr-0.0.0/src/completion/completion.bash" ] || return 1
         }
         When call verify_release_archive
         The status should be success

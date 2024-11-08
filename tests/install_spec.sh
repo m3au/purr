@@ -1,33 +1,9 @@
 #!/usr/bin/env bash
 
 Describe 'Install Script'
-  setup() {
-    TEST_HOME=$(mktemp -d)
-    export HOME="$TEST_HOME"
-    export XDG_DATA_HOME="$TEST_HOME/.local/share"
-    export SHELL="/bin/zsh"
-    export QUIET=0
-    export PURR_TEST=1
-
-    mkdir -p "$XDG_DATA_HOME"
-    chmod -R 755 "$TEST_HOME"
-    touch "$HOME/.zshrc"
-
-    ORIG_PWD="$PWD"
-    cd "$PURR_ROOT" || exit 1
-  }
-
-  cleanup() {
-    cd "$ORIG_PWD" || exit 1
-    if [ -d "$TEST_HOME" ]; then
-      chmod -R 755 "$TEST_HOME" 2>/dev/null || true
-      rm -rf "$TEST_HOME"
-    fi
-    unset HOME XDG_DATA_HOME SHELL QUIET ORIG_PWD PURR_TEST
-  }
-
-  BeforeEach 'setup'
-  AfterEach 'cleanup'
+  Include tests/spec_helper.sh
+  BeforeEach 'setup_test_env'
+  AfterEach 'cleanup_test_env'
 
   Describe 'Installation'
     Example 'performs a clean installation'

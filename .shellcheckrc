@@ -11,7 +11,7 @@ disable=SC1091  # Can't follow non-constant source
 disable=SC2317  # Command appears to be unreachable
 
 # Test exclusions
-exclude=tests/*.spec
+exclude=tests/*_spec.sh
 exclude=tests/spec_helper.sh
 
 # Editor integration

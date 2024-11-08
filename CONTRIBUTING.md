@@ -119,9 +119,9 @@ Tests match the source structure:
 
 ```text
 tests/
-├── auth.spec       # Tests for src/lib/core/auth.sh
-├── backup.spec     # Tests for src/lib/commands/config/backup.sh
-├── color.spec      # Tests for src/lib/core/color.sh
+├── auth_spec.sh       # Tests for src/lib/core/auth.sh
+├── backup_spec.sh     # Tests for src/lib/commands/config/backup.sh
+├── color_spec.sh      # Tests for src/lib/core/color.sh
 ├── ...
 └── spec_helper.sh  # Common test helpers
 ```
@@ -176,7 +176,7 @@ End
 
 - Never commit sensitive keys
 - Report security issues privately
-- Follow [Security Policy](../../SECURITY.md)
+- Follow [Security Policy](docs/SECURITY.md)
 
 ## Questions?
 

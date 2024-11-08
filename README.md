@@ -188,3 +188,4 @@ MIT - See [LICENSE](LICENSE)
 - [ ] add development docs to README
 - [ ] add testing docs to README
 - [ ] add Makefile docs to README
+- [ ] add dist to gitignore?

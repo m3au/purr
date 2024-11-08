@@ -1,37 +1,21 @@
 #!/usr/bin/env bash
 
 Describe 'Make Commands'
-  setup() {
-    TEST_HOME=$(mktemp -d)
-    export HOME="$TEST_HOME"
-    export XDG_DATA_HOME="$TEST_HOME/.local/share"
-    export SHELL="/bin/zsh"
-    export QUIET=0
-    export PURR_TEST=1
-
-    mkdir -p "$XDG_DATA_HOME"
-    chmod -R 755 "$TEST_HOME"
-    touch "$HOME/.zshrc"
-
-    ORIG_PWD="$PWD"
-    cd "$PURR_ROOT" || exit 1
-
-    rm -rf "tests/dev/.local/share/purr"
-  }
-
-  cleanup() {
-    cd "$ORIG_PWD" || exit 1
-    if [ -d "$TEST_HOME" ]; then
-      chmod -R 755 "$TEST_HOME" 2>/dev/null || true
-      rm -rf "$TEST_HOME"
-    fi
-    unset HOME XDG_DATA_HOME SHELL QUIET ORIG_PWD PURR_TEST
-  }
-
-  BeforeEach 'setup'
-  AfterEach 'cleanup'
+  Include tests/spec_helper.sh
+  BeforeEach 'setup_test_env'
+  AfterEach 'cleanup_test_env'
 
   Describe 'Installation'
+    Before 'clean_existing_installation'
+
+    clean_existing_installation() {
+      rm -rf "$XDG_DATA_HOME/purr" || true
+      if [ -f "$HOME/.zshrc" ]; then
+        sed -i.bak '/purr\/_purr/d' "$HOME/.zshrc"
+        rm -f "$HOME/.zshrc.bak"
+      fi
+    }
+
     Example 'make install performs installation'
       When run make install
       The output should include "Installing purr..."
@@ -54,6 +38,20 @@ Describe 'Make Commands'
       The status should be success
       Path "$XDG_DATA_HOME/purr" should not be directory
       The contents of file "$HOME/.zshrc" should not include "purr/_purr"
+    End
+  End
+
+  Describe 'Documentation targets'
+    It 'has background target'
+      When call make -n background
+      The status should be success
+      The output should include 'generate-docs.sh background'
+    End
+
+    It 'has context target'
+      When call make -n context
+      The status should be success
+      The output should include 'generate-docs.sh context'
     End
   End
 End
