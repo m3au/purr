@@ -1,55 +1,75 @@
 #!/bin/sh
 
-set -euo pipefail
+set -e
 
 echo "Checking development environment..."
 
-# Check development dependencies first
+# Check development dependencies
 echo "- Development dependencies:"
-for cmd in shellcheck shfmt kcov go-md2man shellspec; do
-    if command -v "$cmd" >/dev/null 2>&1; then
-        echo "✓ $cmd installed"
-    else
-        echo "✗ $cmd not installed"
-        echo "Run 'make dev-setup' to install missing dependencies"
-    fi
+dev_packages="shellcheck shfmt kcov go-md2man shellspec"
+
+for pkg in $dev_packages; do
+  if command -v "$pkg" >/dev/null; then
+    echo "✓ $pkg installed"
+  else
+    echo "✗ $pkg not installed"
+    has_missing_deps=1
+  fi
 done
 
-# Source test environment setup only after checking dependencies
-. ./tests/spec_helper.sh
-setup_test_env
+if [ "${has_missing_deps:-0}" = "1" ]; then
+  echo "Run 'make dev-setup' to install missing dependencies"
+fi
 
 # Check directory structure
 echo "- Directory structure:"
-for dir in "tests/root/.config/purr" "tests/root/.local/share/purr" "tests/root/.cache/purr" "tests/dist"; do
-    if [ ! -d "$dir" ]; then
-        echo "✗ Missing directory: $dir"
-        echo "Run 'make dev-setup' to create missing directories"
-    else
-        echo "✓ Found directory: $dir"
-    fi
+required_dirs="
+    tests/root/.config/purr
+    tests/root/.local/share/purr
+    tests/root/.cache/purr
+    tests/dist
+"
+
+for dir in $required_dirs; do
+  if [ -d "$dir" ]; then
+    echo "✓ Found directory: $dir"
+  else
+    echo "✗ Missing directory: $dir"
+    has_missing_dirs=1
+  fi
 done
+
+if [ "${has_missing_dirs:-0}" = "1" ]; then
+  echo "Run 'make dev-setup' to create missing directories"
+fi
 
 # Check file permissions
 echo "- File permissions:"
-if find tests -name "*_spec.sh" -type f -perm -u+x >/dev/null; then
-    echo "✓ Test files are executable"
+if find tests -type f -name "*_spec.sh" -exec test -x {} \; >/dev/null 2>&1; then
+  echo "✓ Test files are executable"
 else
-    echo "✗ Test files not executable"
+  echo "✗ Some test files are not executable"
 fi
 
-if [ -x "src/bin/purr" ]; then
-    echo "✓ Binary files are executable"
+if find src/bin -type f -exec test -x {} \; >/dev/null 2>&1; then
+  echo "✓ Binary files are executable"
 else
-    echo "✗ Binary files not executable"
+  echo "✗ Some binary files are not executable"
 fi
 
 # Check environment variables
 echo "- Environment variables:"
-for var in PURR_ROOT PURR_LIB PURR_BIN; do
-    if [ -n "${!var:-}" ]; then
-        echo "✓ $var set to: ${!var}"
-    else
-        echo "✗ $var not set"
-    fi
-done
+check_env() {
+  var_name="$1"
+  var_value="$2"
+
+  if [ -n "$var_value" ]; then
+    echo "✓ $var_name set to: $var_value"
+  else
+    echo "✗ $var_name not set"
+  fi
+}
+
+check_env "PURR_ROOT" "$PURR_ROOT"
+check_env "PURR_LIB" "$PURR_LIB"
+check_env "PURR_BIN" "$PURR_BIN"

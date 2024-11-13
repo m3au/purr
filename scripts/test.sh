@@ -1,13 +1,12 @@
 #!/bin/sh
 
-set -euo pipefail
+set -e
 
-echo "Setting up test environment..."
+# Check if shellspec is installed
+if ! command -v shellspec >/dev/null; then
+  echo "Error: shellspec is required but not installed"
+  echo "Run 'make setup' to install dependencies"
+  exit 1
+fi
 
-# Source test environment setup
-. ./tests/spec_helper.sh && setup_test_env
-
-# Run tests
-cd tests && SHELLSPEC_LOAD_PATH=. shellspec --shell /bin/bash --quiet **/*_spec.sh
-
-echo "✓ Tests complete"
+shellspec --format documentation --require spec_helper.sh --shell /bin/sh -- "./*_spec.sh"

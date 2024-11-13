@@ -1,20 +1,31 @@
-# Shell type and behavior
-shell=bash
+# Shell dialect
+shell=sh
+
+# Enable external source following
 external-sources=true
-source-path=SCRIPTDIR
 source-path=src/lib
-norc=true
 
-# Disabled checks
-disable=SC1090  # Can't follow non-constant source
-disable=SC1091  # Can't follow non-constant source
-disable=SC2317  # Command appears to be unreachable
+# Enable optional checks
+enable=require-variable-braces
+enable=quote-safe-variables
+enable=avoid-nullary-conditions
 
-# Test exclusions
-exclude=tests/*_spec.sh
-exclude=tests/spec_helper.sh
+# Exclude docs folder
+exclude=docs/*
 
-# Editor integration
-enable=true
-enable-quick-fix=true
-check-sourced=true
+# Other useful options (commented out)
+# disable=SC2034  # Unused variables
+# disable=SC2154  # Referenced but not assigned
+# disable=SC2086  # Double quote to prevent globbing
+# disable=SC2016  # Single quotes prevent expansion
+
+# Severity settings
+# severity=style
+# severity=warning
+
+# Format options
+# format=gcc
+# format=tty
+
+# External sources
+# external-sources=true

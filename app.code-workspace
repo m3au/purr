@@ -21,11 +21,13 @@
       "editor.formatOnSave": true
     },
     "files.exclude": {
-      // ".cspell.json": true,
-      // ".editorconfig": true,
-      // ".markdownlint.json": true,
-      // ".gitignore": true,
-      // ".gitattributes": true
+      ".cspell.json": true,
+      ".editorconfig": true,
+      ".markdownlint.json": true,
+      ".gitignore": true,
+      ".gitattributes": true,
+      // ".shellcheckrc": true,
+      ".shellspec": true
     }
   },
   "extensions": {
@@ -38,5 +40,5 @@
       "ms-vscode.makefile-tools",
       "editorconfig.editorconfig"
     ]
-  },
+  }
 }

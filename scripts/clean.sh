@@ -1,13 +1,13 @@
 #!/bin/sh
 
-set -eo pipefail
+set -e
 
 echo "Cleaning build artifacts..."
 
 # Clean and recreate test environment
 if [ -d "tests/root" ]; then
-    chmod -R 755 "tests/root" 2>/dev/null || true
-    rm -rf "tests/root"
+  chmod -R 755 "tests/root" 2>/dev/null || true
+  rm -rf "tests/root"
 fi
 
 # Recreate test directory structure
@@ -18,12 +18,12 @@ mkdir -p "tests/dist"
 
 # Clean up XDG cache directory
 if [ -n "${XDG_CACHE_HOME-}" ]; then
-    cache_dir="$XDG_CACHE_HOME/purr"
+  cache_dir="$XDG_CACHE_HOME/purr"
 else
-    cache_dir="$HOME/.cache/purr"
+  cache_dir="$HOME/.cache/purr"
 fi
 if [ -d "$cache_dir" ]; then
-    rm -rf "$cache_dir"
+  rm -rf "$cache_dir"
 fi
 
 # Remove any temporary test files

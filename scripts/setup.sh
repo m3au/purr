@@ -1,43 +1,38 @@
 #!/bin/sh
 
-set -euo pipefail
+set -e
 
 echo "Setting up development environment..."
 
 # Install development dependencies
-setup_dependencies() {
-    if ! command -v brew >/dev/null; then
-        echo "ERROR: Homebrew is required. Please install it first." >&2
-        exit 1
-    fi
+echo "Installing development dependencies..."
 
-    echo "Installing development dependencies..."
-    for pkg in shellcheck shfmt kcov go-md2man shellspec; do
-        if ! command -v "$pkg" >/dev/null 2>&1; then
-            echo "Installing $pkg..."
-            brew install "$pkg"
-        fi
-    done
-}
+# Check if brew is available
+if ! command -v brew >/dev/null; then
+  echo "Error: Homebrew is required but not installed"
+  exit 1
+fi
 
-# Create project structure
-setup_directories() {
-    echo "Creating project directories..."
+# Install required development tools
+dev_packages="shellcheck shfmt kcov go-md2man shellspec"
 
-    # Source code structure
-    mkdir -p src/{bin,lib,completion}
-    mkdir -p src/lib/{core,commands,auth,vcs}
-    mkdir -p src/lib/commands/{config,keys,status,system}
+for pkg in $dev_packages; do
+  if ! command -v "$pkg" >/dev/null; then
+    echo "Installing $pkg..."
+    brew install "$pkg"
+  fi
+done
 
-    # Test directories
-    mkdir -p tests/root tests/dist tests/scripts
+# Create project directories
+echo "Creating project directories..."
 
-    # Set permissions
-    find src/bin -type f -exec chmod +x {} \;
-    find tests -name "*_spec.sh" -type f -exec chmod +x {} \;
-}
+# Create test directories without brace expansion
+mkdir -p tests/root/.config/purr
+mkdir -p tests/root/.local/share/purr
+mkdir -p tests/root/.cache/purr
+mkdir -p tests/dist
 
-setup_dependencies
-setup_directories
+# Set permissions
+chmod -R 755 tests/root 2>/dev/null || true
 
 echo "✓ Development environment setup complete"
