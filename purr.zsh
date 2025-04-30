@@ -1,13 +1,3 @@
-
-colorize() {
-  local message="$1"
-  if command -v lolcat >/dev/null 2>&1; then
-    echo "$message" | lolcat ${2:--a}
-  else
-    echo "$message"
-  fi
-}
-
 obfuscate_key() {
   local input=$1
   local visible_chars=4
@@ -24,25 +14,22 @@ obfuscate_key() {
   fi
 }
 
-
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   echo "This script should be sourced, not executed directly."
   exit 1
-else
-  colorize "ᓚᘏᗢ purr source loaded"
 fi
-
 
 load_ssh_key() {
   local verbose=$1
-  $verbose && echo "➜ Starting SSH key loading process..."
-  $verbose && echo "➜ Setting SSH_AUTH_SOCK to 1Password agent socket..."
+  $verbose && echo "Loading SSH key..."
 
+  # Set the SSH_AUTH_SOCK to the 1Password SSH agent socket
   export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
   if [ -S "$SSH_AUTH_SOCK" ]; then
-    $verbose && echo "➜ Checking for available identities in 1Password SSH agent..."
+    $verbose && echo "Connected to 1Password SSH agent."
 
+    # Check if any identities are available
     if ssh-add -l 2>&1 | grep -q "The agent has no identities."; then
       $verbose && echo "No identities available in the 1Password SSH agent."
       return 1
@@ -70,38 +57,37 @@ unload_ssh_key() {
   fi
 }
 
-
 load_gpg_key() {
   local verbose=$1
-  $verbose && echo "➜ Starting GPG key loading process..."
-  $verbose && echo "➜ Retrieving GPG key information from 1Password..."
+  $verbose && echo "Starting GPG key loading process..."
+  $verbose && echo "Retrieving GPG key information from 1Password..."
 
-  local gpg_key_id=$(op item get "m3au gpg" --vault "Purr" --field key_id)
-  local password=$(op item get "m3au gpg" --vault "Purr" --field password --reveal)
+  local gpg_key_id=$(op item get "gpg" --vault "purr" --field key_id)
+  local password=$(op item get "gpg" --vault "purr" --field password --reveal)
 
   if [ -z "$gpg_key_id" ] || [ -z "$password" ]; then
     $verbose && echo "Failed to retrieve key ID or password from 1Password."
     return 1
   fi
 
-  $verbose && echo "➜ Retrieving public and private keys..."
-  local public_key=$(op item get "m3au gpg" --vault "Purr" --field public_key)
-  local private_key=$(op item get "m3au gpg" --vault "Purr" --field private_key)
+  $verbose && echo "Retrieving public and private keys..."
+  local public_key=$(op item get "gpg" --vault "purr" --field public_key)
+  local private_key=$(op item get "gpg" --vault "purr" --field private_key)
 
   if [ -z "$public_key" ] || [ -z "$private_key" ]; then
     $verbose && echo "Failed to retrieve public or private key from 1Password."
     return 1
   fi
 
-  $verbose && echo "➜ Creating temporary files for key import..."
+  $verbose && echo "Creating temporary files for key import..."
   local temp_public_key=$(mktemp)
   local temp_private_key=$(mktemp)
 
-  $verbose && echo "➜ Writing keys to temporary files..."
+  $verbose && echo "Writing keys to temporary files..."
   echo "$public_key" | sed 's/^"//; s/"$//; s/\\n/\n/g' >"$temp_public_key"
   echo "$private_key" | sed 's/^"//; s/"$//; s/\\n/\n/g' >"$temp_private_key"
 
-  $verbose && echo "➜ Verifying key contents..."
+  $verbose && echo "Verifying key contents..."
   $verbose && echo "Public key (first 50 characters):"
   $verbose && head -c 50 "$temp_public_key"
   $verbose && echo
@@ -109,39 +95,37 @@ load_gpg_key() {
   $verbose && head -c 50 "$temp_private_key"
   $verbose && echo
 
-  $verbose && echo "➜ Importing public GPG key..."
+  $verbose && echo "Importing public GPG key..."
   import_output=$(gpg --batch --yes --import "$temp_public_key" 2>&1)
 
-  $verbose && echo "➜ Importing private GPG key..."
+  $verbose && echo "Importing private GPG key..."
   import_output=$(gpg --batch --yes --passphrase "$password" --import "$temp_private_key" 2>&1)
 
-  $verbose && echo "➜ Cleaning up temporary files..."
+  $verbose && echo "Cleaning up temporary files..."
   rm -f "$temp_public_key" "$temp_private_key"
 
-  $verbose && echo "➜ Configuring GPG agent cache..."
+  $verbose && echo "Configuring GPG agent cache..."
   mkdir -p ~/.gnupg
   echo "default-cache-ttl 34560000" >~/.gnupg/gpg-agent.conf
   echo "max-cache-ttl 34560000" >>~/.gnupg/gpg-agent.conf
 
-  $verbose && echo "➜ Restarting GPG agent..."
+  $verbose && echo "Restarting GPG agent..."
   gpgconf --kill gpg-agent
   gpg-agent --daemon
 
-  $verbose && echo "➜ Testing GPG key functionality..."
+  $verbose && echo "Testing GPG key functionality..."
 
-  $verbose && echo "➜ Caching GPG passphrase in the agent..."
+  $verbose && echo "Caching GPG passphrase in the agent..."
   local agent_response=$(echo "RELOADAGENT" | gpg-connect-agent 2>&1)
   if [[ "$agent_response" != "OK" ]]; then
     $verbose && echo "GPG agent response: $agent_response"
   fi
 
-
-  $verbose && echo "➜ Creating temporary file for passphrase test..."
+  $verbose && echo "Creating temporary file for passphrase test..."
   passphrase_file=$(mktemp)
   echo -n "$password" >"$passphrase_file"
 
-
-  $verbose && echo "➜ Testing signing capability..."
+  $verbose && echo "Testing signing capability..."
   temp_file=$(mktemp)
   echo "test" >"$temp_file"
   if gpg --batch --yes --passphrase-file "$passphrase_file" --pinentry-mode loopback -u "$gpg_key_id" -s "$temp_file" 2>"${temp_file}.error"; then
@@ -154,19 +138,18 @@ load_gpg_key() {
     return 1
   fi
 
-  $verbose && echo "➜ Configuring Git GPG signing..."
+  $verbose && echo "Configuring Git GPG signing..."
   git config --global user.signingkey "$gpg_key_id"
   git config --global commit.gpgsign true
   git config --global gpg.program $(which gpg)
 
-  $verbose && echo "➜ Verifying Git GPG configuration..."
+  $verbose && echo "Verifying Git GPG configuration..."
   $verbose && echo "Git GPG signing configured with key: $gpg_key_id"
   $verbose && echo "GPG program path: $(which gpg)"
   $verbose && echo "Git config:"
   $verbose && git config --global --list | grep gpg
 
-
-  $verbose && echo "➜ Performing final GPG signing test..."
+  $verbose && echo "Performing final GPG signing test..."
   if echo "test" | gpg --clearsign >/dev/null 2>&1; then
     $verbose && echo "GPG signing test successful."
   else
@@ -194,7 +177,6 @@ unload_gpg_key() {
     $verbose && echo "No GPG key found to remove."
   fi
 
-
   if $verbose; then
     echo "Clearing GPG agent cache..."
   fi
@@ -203,12 +185,11 @@ unload_gpg_key() {
   $verbose && echo "GPG agent cache cleared and agent stopped."
 }
 
-
 check_keys() {
   local verbose=$1
-  $verbose && echo "➜ Starting key status check..."
+  $verbose && echo "Starting key status check..."
 
-  echo "➜ Checking for SSH keys:"
+  echo "Checking for SSH keys:"
   if [ -d ~/.ssh ]; then
     local ssh_keys=$(ls -1 ~/.ssh/*.pub 2>/dev/null | sed 's/\.pub$//')
     if [ -n "$ssh_keys" ]; then
@@ -273,15 +254,14 @@ check_keys() {
     fi
   fi
 
-
   echo -e "\nChecking if GPG passphrase is cached in the agent:"
-  $verbose && echo "➜ Retrieving Git signing key..."
+  $verbose && echo "Retrieving Git signing key..."
   local signing_key=$(git config --global user.signingkey)
   if [ -n "$signing_key" ]; then
-    $verbose && echo "➜ Looking up keygrip for signing key: $signing_key..."
+    $verbose && echo "Looking up keygrip for signing key: $signing_key..."
     local keygrip=$(gpg --with-keygrip --list-secret-keys "$signing_key" 2>/dev/null | awk '/Keygrip/ {print $3; exit}')
     if [ -n "$keygrip" ]; then
-      $verbose && echo "➜ Checking if keygrip $keygrip is cached in GPG agent..."
+      $verbose && echo "Checking if keygrip $keygrip is cached in GPG agent..."
       if gpg-connect-agent "keyinfo --list" /bye | grep -q "$keygrip"; then
         echo "  GPG passphrase is cached in the agent."
       else
@@ -295,19 +275,17 @@ check_keys() {
   fi
 }
 
-
 enable_git_signing() {
   local verbose=$1
-  $verbose && echo "➜ Starting Git GPG signing configuration..."
-  $verbose && echo "➜ Retrieving GPG key ID from 1Password..."
+  $verbose && echo "Starting Git GPG signing configuration..."
+  $verbose && echo "Retrieving GPG key ID from 1Password..."
 
-  local gpg_key_id=$(op item get "m3au gpg" --vault "Purr" --field key_id)
+  local gpg_key_id=$(op item get "gpg" --vault "purr" --field key_id)
 
   if [ -z "$gpg_key_id" ]; then
     $verbose && echo "No GPG key ID found in 1Password. Make sure a GPG key is loaded."
     return 1
   fi
-
 
   git config --global user.signingkey $gpg_key_id
   git config --global commit.gpgsign true
@@ -321,11 +299,9 @@ enable_git_signing() {
   return 0
 }
 
-
 disable_git_signing() {
   local verbose=$1
   $verbose && echo "Disabling Git GPG signing..."
-
 
   git config --global --unset user.signingkey
   git config --global --unset commit.gpgsign
@@ -334,13 +310,11 @@ disable_git_signing() {
   return 0
 }
 
-
 check_existing_setup() {
   local has_existing=false
   local details=""
 
   echo "Checking existing configuration..."
-
 
   if [ -n "$SSH_AUTH_SOCK" ]; then
     has_existing=true
@@ -352,14 +326,12 @@ check_existing_setup() {
     fi
   fi
 
-
   if gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep -q "sec"; then
     has_existing=true
     details="${details}🔐 GPG keys are present\n"
     local key_count=$(gpg --list-secret-keys --keyid-format LONG 2>/dev/null | grep -c "^sec")
     details="${details}    ✓ ${key_count} key(s) loaded\n"
   fi
-
 
   local signing_key=$(git config --global user.signingkey)
   local commit_sign=$(git config --global commit.gpgsign)
@@ -370,26 +342,58 @@ check_existing_setup() {
     [ "$commit_sign" = "true" ] && details="${details}    ✓ Commit signing is enabled\n"
   fi
 
-  if $has_existing; then
-    colorize "✨ Existing configuration found"
-    echo -e "\nCurrent setup:"
-    echo -e "${details}"
-    echo -n "Override existing configuration? [y/N] "
-    read -k 1 REPLY
-    echo
-    [[ $REPLY =~ ^[Yy]$ ]]
-    return $?
-  fi
-
   return 0
 }
 
+check_1password() {
+  local verbose=$1
+  $verbose && echo "Checking 1Password status..."
+
+  # Check if 1Password is running
+  if ! pgrep -q "1Password"; then
+    echo "1Password is not running. Attempting to launch..."
+    open -a "1Password"
+
+    # Wait for up to 10 seconds for 1Password to launch
+    local attempts=0
+    while ! pgrep -q "1Password" && [ $attempts -lt 10 ]; do
+      sleep 1
+      ((attempts++))
+    done
+
+    if ! pgrep -q "1Password"; then
+      echo "❌ Failed to launch 1Password. Please start it manually and try again."
+      return 1
+    fi
+
+    echo "✨ 1Password launched. Please sign in if needed."
+    echo "Press any key once you've signed in..."
+    read -k 1 -s
+  fi
+
+  # Test connection to 1Password CLI
+  if ! op account get >/dev/null 2>&1; then
+    echo "🔐 Please authenticate with 1Password CLI..."
+    if ! eval $(op signin); then
+      echo "❌ Failed to authenticate with 1Password CLI."
+      echo "Please ensure:"
+      echo "  1. 1Password desktop app is running and you're signed in"
+      echo "  2. 1Password CLI integration is enabled in preferences"
+      echo "  3. You have the latest version of 1Password"
+      return 1
+    fi
+  fi
+
+  $verbose && echo "✅ 1Password is running and authenticated"
+  return 0
+}
 
 purr() {
   local verbose=false
   local success=true
   local command=""
 
+  echo "ᓚᘏᗢ purr initializing..." | lolcat -a
 
   print_help() {
     echo "Usage: purr [command] [-v]"
@@ -403,7 +407,6 @@ purr() {
     echo "Options:"
     echo "  -v        Verbose mode"
   }
-
 
   while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -432,96 +435,59 @@ purr() {
     esac
   done
 
-
   case "$command" in
   check)
-    echo "🔍 Checking key status..."
     check_keys $verbose
     ;;
   lock)
     if $verbose; then
-      colorize "🔒 Locking system..."
-      echo "➜ Signing out of 1Password..."
       op signout --all
-      echo "➜ Unloading SSH key..."
       unload_ssh_key true
-      echo "➜ Unloading GPG key..."
       unload_gpg_key true
-      echo "➜ Disabling Git signing..."
       disable_git_signing true
-      colorize "✓ System locked"
+      echo "System locked" | lolcat -a
     else
       op signout --all >/dev/null 2>&1
       unload_ssh_key false >/dev/null 2>&1
       unload_gpg_key false >/dev/null 2>&1
       disable_git_signing false >/dev/null 2>&1
+      echo "System locked" | lolcat -a
     fi
-    colorize "ᓚᘏᗢ hiss"
+    echo "ᓚᘏᗢ hiss" | lolcat -a
     ;;
   "")
-    colorize "Starting key management..."
-
-    if ! check_existing_setup; then
-      colorize "✗ Setup cancelled"
+    if ! check_1password $verbose; then
       return 1
     fi
 
-    local steps_total=4
-    local current_step=1
-
-    if ! pgrep -q "1Password"; then
-      echo "🔑 Launching 1Password..."
-      open -a "1Password"
-      echo "Please sign in to 1Password and press any key to continue."
-      read -k 1 -s
+    if ! load_ssh_key $verbose; then
+      echo "Failed: SSH key"
+      return 1
     fi
 
-    if ! op account get >/dev/null 2>&1; then
-      echo "🔒 Authenticating with 1Password..."
-      eval $(op signin)
+    if ! load_gpg_key $verbose; then
+      echo "Failed: GPG key"
+      return 1
     fi
 
-    echo "[$current_step/$steps_total] 🔑 Loading SSH keys..."
-    if load_ssh_key $verbose; then
-      colorize "[$current_step/$steps_total] ✓ SSH keys loaded successfully"
-    else
-      success=false
-    fi
-    ((current_step++))
-
-    echo "[$current_step/$steps_total] 🔐 Loading GPG keys..."
-    if load_gpg_key $verbose; then
-      colorize "[$current_step/$steps_total] ✓ GPG keys loaded and agent configured"
-      if ! gpg --list-secret-keys $(git config --global user.signingkey) >/dev/null 2>&1; then
-        echo "  ↳ Reimporting GPG secret key..."
-        reimport_secret_key $verbose $(git config --global user.signingkey) $(op item get "m3au gpg" --vault "Purr" --field password --reveal)
-      fi
-    else
-      success=false
-    fi
-    ((current_step++))
-
-    echo "[$current_step/$steps_total] 📝 Configuring Git signing..."
-    if enable_git_signing $verbose; then
-      colorize "[$current_step/$steps_total] ✓ Git signing configured successfully"
-    else
-      success=false
-    fi
-    ((current_step++))
-
-    echo "[$current_step/$steps_total] 🔗 Setting up GitHub credentials..."
-    if setup_github_credentials $verbose; then
-      colorize "[$current_step/$steps_total] ✓ GitHub credentials configured successfully"
-    else
-      success=false
+    if ! enable_git_signing $verbose; then
+      echo "Failed: Git signing"
+      return 1
     fi
 
-    if $success; then
-      colorize "✨ All keys loaded, agents configured, and Git/GitHub setup complete"
-      $verbose || colorize "ᓚᘏᗢ purr"
-    else
-      colorize "✗ Failed to complete key setup"
+    if ! setup_github_credentials $verbose; then
+      echo "Failed: GitHub credentials"
+      return 1
     fi
+
+    echo -e "\nCredentials loaded:" | lolcat -a
+    echo "SSH: Connected" | lolcat -a
+    local gpg_key=$(git config --global user.signingkey)
+    echo "GPG: $(obfuscate_key "$gpg_key")" | lolcat -a
+    echo "Git signing: Enabled" | lolcat -a
+    echo "GitHub: $(git config --global user.name)" | lolcat -a
+    echo "ᓚᘏᗢ purr" | lolcat -a
+    return 0
     ;;
   *)
     echo "Unknown command: $command"
@@ -531,14 +497,12 @@ purr() {
   esac
 }
 
-
 check_gpg_key() {
   local verbose=$1
   local gpg_key_id=$2
 
-  $verbose && echo "➜ Starting GPG key status check..."
-  $verbose && echo "➜ Checking public key presence..."
-
+  $verbose && echo "Starting GPG key status check..."
+  $verbose && echo "Checking public key presence..."
 
   if gpg --list-keys "$gpg_key_id" >/dev/null 2>&1; then
     $verbose && echo "Public key found."
@@ -546,13 +510,11 @@ check_gpg_key() {
     $verbose && echo "Public key not found."
   fi
 
-
   if gpg --list-secret-keys "$gpg_key_id" >/dev/null 2>&1; then
     $verbose && echo "Secret key found."
   else
     $verbose && echo "Secret key not found."
   fi
-
 
   $verbose && echo "Key details:"
   gpg --list-keys --with-fingerprint "$gpg_key_id" | while IFS= read -r line; do
@@ -570,7 +532,6 @@ check_gpg_key() {
       echo "$line"
     fi
   done
-
 
   $verbose && echo "Secret key details:"
   gpg --list-secret-keys --with-fingerprint "$gpg_key_id" | while IFS= read -r line; do
@@ -595,16 +556,14 @@ reimport_secret_key() {
   local gpg_key_id=$2
   local password=$3
 
-  $verbose && echo "➜ Starting secret key reimport process..."
-  $verbose && echo "➜ Attempting to export existing secret key..."
-
+  $verbose && echo "Starting secret key reimport process..."
+  $verbose && echo "Attempting to export existing secret key..."
 
   local export_output=$(gpg --batch --yes --passphrase "$password" --export-secret-keys "$gpg_key_id" 2>&1)
   if [ $? -ne 0 ]; then
     $verbose && echo "Failed to export secret key: $export_output"
     return 1
   fi
-
 
   local import_output=$(echo "$export_output" | gpg --batch --yes --passphrase "$password" --import 2>&1)
   $verbose && echo "Reimport output: $import_output"
@@ -618,32 +577,79 @@ reimport_secret_key() {
   fi
 }
 
-
-
 setup_github_credentials() {
   local verbose=$1
-  $verbose && echo "➜ Setting up GitHub credentials..."
+  $verbose && echo "Setting up GitHub credentials..."
 
-
-  local github_user=$(op item get "GitHub" --vault "Purr" --field username)
-  local github_email=$(op item get "GitHub" --vault "Purr" --field email)
-  local github_pat=$(op item get "GitHub" --vault "Purr" --field pat --reveal)
-
-  if [ -z "$github_user" ] || [ -z "$github_email" ] || [ -z "$github_pat" ]; then
-    $verbose && echo "Failed to retrieve GitHub credentials from 1Password."
+  # Check if 1Password is accessible first
+  if ! op account get >/dev/null 2>&1; then
+    echo "✗ Not authenticated with 1Password. Please sign in first."
     return 1
   fi
 
+  # First, let's verify the item exists
+  $verbose && echo "Checking GitHub item in 1Password..."
+  if ! op item get "GitHub" --vault "purr" >/dev/null 2>&1; then
+    echo "✗ GitHub item not found in 'purr' vault"
+    return 1
+  fi
 
-  git config --global user.name "$github_user"
-  git config --global user.email "$github_email"
+  # Retrieve credentials with error checking
+  local github_user
+  local github_email
+  local github_pat
 
+  $verbose && echo "Retrieving GitHub credentials..."
+  # Try common field names for username
+  for field in "username" "user" "login"; do
+    if github_user=$(op item get "GitHub" --vault "purr" --field "$field" 2>/dev/null); then
+      $verbose && echo "✓ Username retrieved"
+      break
+    fi
+  done
 
-  echo "protocol=https
-host=github.com
-username=$github_user
-password=$github_pat" | git credential-osxkeychain store
+  # Try common field names for email
+  for field in "email" "mail" "email address"; do
+    if github_email=$(op item get "GitHub" --vault "purr" --field "$field" 2>/dev/null); then
+      $verbose && echo "✓ Email retrieved"
+      break
+    fi
+  done
 
-  $verbose && echo "✓ GitHub credentials configured"
+  # Try common field names for PAT
+  for field in "pat" "token" "access token" "personal access token" "password"; do
+    if github_pat=$(op item get "GitHub" --vault "purr" --field "$field" --reveal 2>/dev/null); then
+      $verbose && echo "✓ Token retrieved"
+      break
+    fi
+  done
+
+  if [ -z "$github_user" ] || [ -z "$github_email" ] || [ -z "$github_pat" ]; then
+    echo "✗ One or more GitHub credentials are missing"
+    return 1
+  fi
+
+  $verbose && echo "Setting Git username..."
+  if ! git config --global user.name "$github_user"; then
+    echo "✗ Failed to set Git username"
+    return 1
+  fi
+  $verbose && echo "✓ Git username set"
+
+  $verbose && echo "Setting Git email..."
+  if ! git config --global user.email "$github_email"; then
+    echo "✗ Failed to set Git email"
+    return 1
+  fi
+  $verbose && echo "✓ Git email set"
+
+  $verbose && echo "Storing GitHub credentials in keychain..."
+  if ! printf "protocol=https\nhost=github.com\nusername=%s\npassword=%s\n" "$github_user" "$github_pat" | git credential-osxkeychain store; then
+    echo "✗ Failed to store GitHub credentials in keychain"
+    return 1
+  fi
+  $verbose && echo "✓ GitHub credentials stored in keychain"
+
+  $verbose && echo "✓ GitHub credentials configured successfully"
   return 0
 }
