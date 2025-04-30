@@ -1,6 +1,6 @@
 # 🐱 purr
 
-[![purr](https://github.com/m3au/store/blob/main/docs/purr.png)]
+![purr](https://github.com/m3au/store/blob/main/docs/purr.png)
 
 [![License](https://img.shields.io/github/license/m3au/purr)](LICENSE)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
