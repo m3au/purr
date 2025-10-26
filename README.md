@@ -2,13 +2,7 @@
 
 ![purr](https://github.com/m3au/store/blob/main/docs/purr.png)
 
-[![License](https://img.shields.io/github/license/m3au/purr)](LICENSE)
-[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![ZSH Plugin](https://img.shields.io/badge/ZSH-Plugin-blue)](https://github.com/unixorn/awesome-zsh-plugins)
-[![macOS](https://img.shields.io/badge/macOS-supported-success)](https://github.com/m3au/purr#prerequisites)
-[![1Password](https://img.shields.io/badge/1Password-integrated-blue)](https://1password.com/)
-[![GPG](https://img.shields.io/badge/GPG-enabled-brightgreen)](https://gnupg.org/)
-[![SSH](https://img.shields.io/badge/SSH-supported-yellow)](https://www.ssh.com/)
+[![License](https://img.shields.io/github/license/m3au/purr)](LICENSE) [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![ZSH Plugin](https://img.shields.io/badge/ZSH-Plugin-blue)](https://github.com/unixorn/awesome-zsh-plugins) [![macOS](https://img.shields.io/badge/macOS-supported-success)](https://github.com/m3au/purr#prerequisites) [![1Password](https://img.shields.io/badge/1Password-integrated-blue)](https://1password.com/) [![GPG](https://img.shields.io/badge/GPG-enabled-brightgreen)](https://gnupg.org/) [![SSH](https://img.shields.io/badge/SSH-supported-yellow)](https://www.ssh.com/)
 
 A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG. Securely loads and unloads keys, configures Git signing, and manages GitHub credentials - all with a simple purr command.
 
@@ -18,8 +12,10 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 - 🔑 Automated SSH key management
 - 📝 GPG key handling and Git commit signing
 - 🔄 GitHub credentials configuration
-- 🔒 Secure key unloading with lock command
+- 🔒 Secure key unloading with lock command (including env file cleanup)
 - 🔍 Key status checking capabilities
+- 🎯 GitHub token export for MCP/Cursor integration
+- 🧹 Automatic cleanup on shell exit
 
 ## 📋 Prerequisites
 
@@ -65,6 +61,15 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 - `purr check` - Checks key status
 - `purr -v` - Verbose mode for any command
 - `purr -h` - Shows help message
+
+### GitHub Token Management
+
+When running `purr`, the GitHub Personal Access Token is:
+
+- Exported as `GITHUB_TOKEN` environment variable
+- Persisted to `~/.cursor/env` for Cursor MCP servers
+- Automatically cleaned up on shell exit or when running `purr lock`
+- Shown in obfuscated format (first 4 and last 4 chars visible)
 
 ### Coming Soon
 

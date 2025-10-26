@@ -445,12 +445,16 @@ purr() {
       unload_ssh_key true
       unload_gpg_key true
       disable_git_signing true
+      unset GITHUB_TOKEN
+      rm -f ~/.cursor/env
       echo "System locked" | lolcat -a
     else
       op signout --all >/dev/null 2>&1
       unload_ssh_key false >/dev/null 2>&1
       unload_gpg_key false >/dev/null 2>&1
       disable_git_signing false >/dev/null 2>&1
+      unset GITHUB_TOKEN
+      rm -f ~/.cursor/env >/dev/null 2>&1
       echo "System locked" | lolcat -a
     fi
     echo "ᓚᘏᗢ hiss" | lolcat -a
@@ -481,11 +485,15 @@ purr() {
     fi
 
     echo -e "\nCredentials loaded:" | lolcat -a
-    echo "SSH: Connected" | lolcat -a
+    local github_user=$(git config --global user.name)
+    echo "GitHub: $github_user" | lolcat -a
+    if [ -n "$GITHUB_TOKEN" ]; then
+      echo "GitHub Token: $(obfuscate_key "$GITHUB_TOKEN")" | lolcat -a
+    fi
+    echo "Git signing: Enabled" | lolcat -a
     local gpg_key=$(git config --global user.signingkey)
     echo "GPG: $(obfuscate_key "$gpg_key")" | lolcat -a
-    echo "Git signing: Enabled" | lolcat -a
-    echo "GitHub: $(git config --global user.name)" | lolcat -a
+    echo "SSH: Connected" | lolcat -a
     echo "ᓚᘏᗢ purr" | lolcat -a
     return 0
     ;;
@@ -649,6 +657,17 @@ setup_github_credentials() {
     return 1
   fi
   $verbose && echo "✓ GitHub credentials stored in keychain"
+
+  $verbose && echo "Exporting GITHUB_TOKEN environment variable..."
+  export GITHUB_TOKEN="$github_pat"
+  
+  # Persist to file for Cursor/MCP to read
+  $verbose && echo "Persisting GITHUB_TOKEN to ~/.cursor/env..."
+  mkdir -p ~/.cursor
+  # Use printf to safely escape the token
+  printf 'export GITHUB_TOKEN="%s"\n' "$github_pat" > ~/.cursor/env
+  
+  $verbose && echo "✓ GITHUB_TOKEN exported and persisted"
 
   $verbose && echo "✓ GitHub credentials configured successfully"
   return 0
