@@ -273,6 +273,23 @@ check_keys() {
   else
     echo "  No GPG signing key configured in Git."
   fi
+
+  echo -e "\nChecking GitHub token status:"
+  if [ -n "$GITHUB_TOKEN" ]; then
+    echo "  GITHUB_TOKEN environment variable: Set ($(obfuscate_key "$GITHUB_TOKEN"))"
+  else
+    echo "  GITHUB_TOKEN environment variable: Not set"
+  fi
+
+  if [ -f ~/.cursor/env ]; then
+    echo "  ~/.cursor/env file: Exists"
+    if $verbose; then
+      echo "  File contents preview:"
+      head -n 2 ~/.cursor/env | sed 's/.*/    &/'
+    fi
+  else
+    echo "  ~/.cursor/env file: Not found"
+  fi
 }
 
 enable_git_signing() {
@@ -660,13 +677,13 @@ setup_github_credentials() {
 
   $verbose && echo "Exporting GITHUB_TOKEN environment variable..."
   export GITHUB_TOKEN="$github_pat"
-  
+
   # Persist to file for Cursor/MCP to read
   $verbose && echo "Persisting GITHUB_TOKEN to ~/.cursor/env..."
   mkdir -p ~/.cursor
   # Use printf to safely escape the token
   printf 'export GITHUB_TOKEN="%s"\n' "$github_pat" > ~/.cursor/env
-  
+
   $verbose && echo "✓ GITHUB_TOKEN exported and persisted"
 
   $verbose && echo "✓ GitHub credentials configured successfully"
