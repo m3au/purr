@@ -12,10 +12,9 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 - 🔑 Automated SSH key management
 - 📝 GPG key handling and Git commit signing
 - 🔄 GitHub credentials configuration
-- 🔒 Secure key unloading with lock command (including env file cleanup)
+- 🔒 Secure key unloading with lock command (including mcp.json cleanup)
 - 🔍 Key status checking capabilities
-- 🎯 GitHub token export for MCP/Cursor integration
-- 🧹 Automatic cleanup on shell exit
+- 🎯 GitHub token configuration for Cursor MCP servers
 
 ## 📋 Prerequisites
 
@@ -67,17 +66,27 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 When running `purr`, the GitHub Personal Access Token is:
 
 - Exported as `GITHUB_TOKEN` environment variable
-- Persisted to `~/.cursor/env` for Cursor MCP servers
-- Automatically cleaned up on shell exit or when running `purr lock`
+- Unset when running `purr lock`
 - Shown in obfuscated format (first 4 and last 4 chars visible)
+
+### Current Implementation
+
+The default `purr` command already handles:
+- ✅ 1Password integration (authentication and credential retrieval)
+- ✅ SSH key management (loads from 1Password SSH agent)
+- ✅ GPG key management (imports and configures Git signing)
+- ✅ GitHub credentials (configures Git user, email, and stores token in keychain)
+- ✅ Git signing (enables GPG commit signing)
+
+Additional commands available:
+- `purr check` - Check status of all keys
+- `purr lock` - Unload all keys and lock 1Password
 
 ### Coming Soon
 
-- `purr github` - Configures GitHub credentials
-- `purr git` - Configures Git signing
-- `purr gpg` - Manages GPG keys
-- `purr ssh` - Manages SSH keys
-- `purr 1password` - Manages 1Password integration
+- `purr github` - Standalone GitHub credential management
+- `purr ssh` - Standalone SSH key operations
+- `purr gpg` - Standalone GPG key operations
 - `purr op` - 1Password CLI shortcuts
 - `purr key` - Key obfuscation utilities
 

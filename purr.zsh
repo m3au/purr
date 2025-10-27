@@ -463,7 +463,7 @@ purr() {
       unload_gpg_key true
       disable_git_signing true
       unset GITHUB_TOKEN
-      rm -f ~/.cursor/env
+      rm -f ~/.cursor/mcp.json
       echo "System locked" | lolcat -a
     else
       op signout --all >/dev/null 2>&1
@@ -471,7 +471,7 @@ purr() {
       unload_gpg_key false >/dev/null 2>&1
       disable_git_signing false >/dev/null 2>&1
       unset GITHUB_TOKEN
-      rm -f ~/.cursor/env >/dev/null 2>&1
+      rm -f ~/.cursor/mcp.json >/dev/null 2>&1
       echo "System locked" | lolcat -a
     fi
     echo "ᓚᘏᗢ hiss" | lolcat -a
@@ -677,14 +677,32 @@ setup_github_credentials() {
 
   $verbose && echo "Exporting GITHUB_TOKEN environment variable..."
   export GITHUB_TOKEN="$github_pat"
+  $verbose && echo "✓ GITHUB_TOKEN exported"
 
-  # Persist to file for Cursor/MCP to read
-  $verbose && echo "Persisting GITHUB_TOKEN to ~/.cursor/env..."
-  mkdir -p ~/.cursor
-  # Use printf to safely escape the token
-  printf 'export GITHUB_TOKEN="%s"\n' "$github_pat" > ~/.cursor/env
+  # Create/update .cursor/mcp.json with the actual token value
+  $verbose && echo "Updating ~/.cursor/mcp.json with GitHub token..."
 
-  $verbose && echo "✓ GITHUB_TOKEN exported and persisted"
+  # Escape special characters in the token for JSON
+  escaped_token=$(printf '%s' "$github_pat" | sed 's/\\/\\\\/g; s/"/\\"/g')
+
+  # Create mcp.json with the actual token value
+  cat > ~/.cursor/mcp.json << EOF
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "$escaped_token"
+      }
+    }
+  }
+}
+EOF
+  $verbose && echo "✓ Updated ~/.cursor/mcp.json with GitHub token"
 
   $verbose && echo "✓ GitHub credentials configured successfully"
   return 0
