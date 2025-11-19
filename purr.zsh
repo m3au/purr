@@ -496,10 +496,6 @@ purr() {
       return 1
     fi
 
-    if ! setup_github_credentials $verbose; then
-      echo "Failed: GitHub credentials"
-      return 1
-    fi
 
     echo -e "\nCredentials loaded:" | lolcat -a
     local github_user=$(git config --global user.name)
@@ -609,14 +605,14 @@ setup_github_credentials() {
   # Check if 1Password is accessible first
   if ! op account get >/dev/null 2>&1; then
     echo "✗ Not authenticated with 1Password. Please sign in first."
-    return 1
+    return 0  # GitHub is optional
   fi
 
   # First, let's verify the item exists
   $verbose && echo "Checking GitHub item in 1Password..."
   if ! op item get "GitHub" --vault "purr" >/dev/null 2>&1; then
-    echo "✗ GitHub item not found in 'purr' vault"
-    return 1
+    
+    return 0  # GitHub is optional
   fi
 
   # Retrieve credentials with error checking
