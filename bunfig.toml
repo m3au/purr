@@ -1,0 +1,15 @@
+[install]
+production = false
+frozenLockfile = false
+autoInstall = false
+
+[tools]
+typescript = false
+
+[registry]
+default = "https://registry.npmjs.org"
+
+[test]
+coverage = false
+root = "tests"
+

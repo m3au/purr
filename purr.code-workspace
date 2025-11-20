@@ -1,0 +1,53 @@
+{
+  "folders": [
+    {
+      "name": "purr",
+      "path": ".",
+    },
+  ],
+  "settings": {
+    "files.associations": {
+      "*.json": "jsonc",
+      "*.zsh": "shellscript",
+    },
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.configPath": "./.prettierrc",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.markdownlint": "explicit",
+    },
+    "editor.rulers": [80],
+    "editor.tabSize": 2,
+    "[json]": {
+      "prettier.trailingComma": "none",
+    },
+    "[jsonc]": {
+      "prettier.trailingComma": "none",
+    },
+    "[shellscript]": {
+      "editor.defaultFormatter": "foxundermoon.shell-format",
+    },
+    "markdownlint.run": "onSave",
+    "markdownlint.config": {
+      "MD004": { "style": "consistent" },
+      "MD041": false,
+    },
+    "files.exclude": {
+      ".markdownlint.json": true,
+      ".prettierrc": true,
+      ".shellcheckrc": true,
+    },
+  },
+  "extensions": {
+    "recommendations": [
+      "editorconfig.editorconfig",
+      "esbenp.prettier-vscode",
+      "foxundermoon.shell-format",
+      "timonwong.shellcheck",
+      "streetsidesoftware.code-spell-checker",
+      "DavidAnson.vscode-markdownlint",
+      "usernamehw.errorlens",
+    ],
+  },
+}
+

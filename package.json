@@ -1,0 +1,58 @@
+{
+  "name": "@m3au/purr",
+  "version": "1.0.0",
+  "description": "A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG. Securely loads and unloads keys, configures Git signing, and manages GitHub credentials - all with a simple purr command.",
+  "author": {
+    "name": "m3au",
+    "email": "m3au@pm.me"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/m3au/purr.git"
+  },
+  "keywords": [
+    "zsh",
+    "plugin",
+    "1password",
+    "gpg",
+    "ssh",
+    "security",
+    "key-management"
+  ],
+  "scripts": {
+    "test": "bats tests/*.bats",
+    "test:watch": "nodemon -e zsh,bats,bash --exec 'bun test'",
+    "lint": "shellcheck purr.zsh",
+    "lint:fix": "shfmt -i 2 -ci -sr -w purr.zsh",
+    "format": "prettier --write '*.{json,md}'",
+    "precommit": "bun run lint && bun run test",
+    "prepare": "bun run precommit"
+  },
+  "devDependencies": {
+    "bats": "1.10.0",
+    "bats-assert": "2.1.0",
+    "bats-support": "0.3.0",
+    "nodemon": "3.1.0",
+    "prettier": "3.2.5"
+  },
+  "trustedDependencies": [
+    "bats",
+    "bats-assert",
+    "bats-support"
+  ],
+  "engines": {
+    "node": "20.11.1",
+    "bun": "1.0.26"
+  },
+  "os": [
+    "darwin"
+  ],
+  "private": false,
+  "type": "module",
+  "files": [
+    "purr.zsh",
+    "LICENSE",
+    "README.md"
+  ]
+}

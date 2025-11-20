@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+bun.lockb
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+*.log
+*.swp
+.env
+
+# Editor directories
+.idea/
+.vscode/
+*.sublime-*
+
+# Backup files
+*.backup
+*.bak
+*.old
+

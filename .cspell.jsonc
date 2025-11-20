@@ -1,0 +1,57 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "allowCompoundWords": true,
+  "dictionaries": ["en_US", "bash", "shell", "software-terms"],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/coverage/**",
+    "**/*.code-workspace",
+    "*.code-workspace",
+    "**/*.lock",
+    "**/*.{svg,png,jpg,jpeg,ico,woff*,ttf}"
+  ],
+  "languageSettings": [
+    {
+      "languageId": "markdown",
+      "locale": "en",
+      "caseSensitive": false
+    },
+    {
+      "languageId": "*",
+      "locale": "en",
+      "caseSensitive": false
+    }
+  ],
+  "ignoreRegExpList": [
+    "/\\b[A-Z]{2,}\\b/g",
+    "/\\b\\d+\\b/g"
+  ],
+  "words": [
+    "1password",
+    "authsock",
+    "bats",
+    "bunx",
+    "esbenp",
+    "foxundermoon",
+    "gpg",
+    "gpgconf",
+    "keygrip",
+    "keyring",
+    "lolcat",
+    "m3au",
+    "op",
+    "passphrase",
+    "pinentry",
+    "purr",
+    "shellcheck",
+    "shfmt",
+    "signingkey",
+    "sshadd",
+    "usernamehw",
+    "zsh"
+  ]
+}
+
