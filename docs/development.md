@@ -60,9 +60,15 @@ purr/
 │   ├── troubleshooting.md
 │   ├── development.md
 │   └── similar-tools.md
-├── tests/                       # Test suite (planned)
-│   ├── test_helper.bats        # Test helper functions (to be added)
-│   └── purr.bats               # Main test file (to be added)
+├── tests/                       # Test suite
+│   ├── test_helper.bats        # Test helper functions
+│   ├── purr.bats               # Main test file
+│   ├── unit_obfuscate.bats     # Unit tests for obfuscate_key
+│   └── mocks/                  # Mock scripts for external commands
+│       ├── op.sh               # Mock 1Password CLI
+│       ├── gpg.sh              # Mock GPG commands
+│       ├── git.sh              # Mock Git commands
+│       └── ssh.sh              # Mock SSH commands
 ├── purr.zsh                     # Main script
 ├── README.md                    # Main documentation
 ├── CONTRIBUTING.md              # Contribution guidelines
@@ -159,7 +165,7 @@ function_name() {
 CI is planned to run automatically on push and pull requests:
 
 - **Lint**: ShellCheck on `purr.zsh` (manual for now: `bun run lint`)
-- **Test**: bats test suite (to be implemented)
+- **Test**: bats test suite (run manually: `bun test` or `bats tests/*.bats`)
 - **Format**: Prettier on markdown/JSON files (manual for now: `bun run format`)
 
 Once CI is set up, all checks must pass before merging.

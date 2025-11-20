@@ -4,17 +4,18 @@
 
 [![CI](https://github.com/m3au/purr/workflows/CI/badge.svg)](https://github.com/m3au/purr/actions) [![License](https://img.shields.io/github/license/m3au/purr)](LICENSE) [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![ZSH Plugin](https://img.shields.io/badge/ZSH-Plugin-blue)](https://github.com/unixorn/awesome-zsh-plugins) [![macOS](https://img.shields.io/badge/macOS-supported-success)](https://github.com/m3au/purr#prerequisites) [![1Password](https://img.shields.io/badge/1Password-integrated-blue)](https://1password.com/) [![GPG](https://img.shields.io/badge/GPG-enabled-brightgreen)](https://gnupg.org/) [![SSH](https://img.shields.io/badge/SSH-supported-yellow)](https://www.ssh.com/)
 
-A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG. Securely loads and unloads keys, configures Git signing, and manages GitHub credentials - all with a simple purr command.
+**purr** is a ZSH plugin that transforms key management from a tedious multi-step process into a single, elegant command. Seamlessly integrate 1Password, SSH, and GPG to securely load keys, configure Git signing, and manage GitHub credentials - all while keeping your workflow fast and secure.
 
 ## 🚀 Features
 
-- 🔐 Seamless integration with 1Password for secure key storage
-- 🔑 Automated SSH key management
-- 📝 GPG key handling and Git commit signing
-- 🔄 GitHub credentials configuration
-- 🔒 Secure key unloading with lock command (including mcp.json cleanup)
-- 🔍 Key status checking capabilities
-- 🎯 GitHub token configuration for Cursor MCP servers
+- 🔐 **1Password Integration** - Store all keys securely in 1Password, no more scattered key files
+- 🔑 **Automated SSH Management** - Connect to 1Password SSH agent with a single command
+- 📝 **GPG & Git Signing** - Automatic GPG key import and Git commit signing configuration
+- 🔄 **GitHub Credentials** - Configure Git user, email, and tokens from 1Password
+- 🔒 **Secure Lock** - Unload all keys and lock 1Password when done (including mcp.json cleanup)
+- 🔍 **Status Checking** - Verify key status, Git signing, and GitHub token configuration
+- 🎯 **Cursor MCP Ready** - Automatically configures GitHub tokens for Cursor MCP servers
+- ⚡ **Lightning Fast** - Get from zero to productive in seconds, not minutes
 
 ## 👥 Who is this for?
 
@@ -170,26 +171,29 @@ source ~/.zsh/purr/purr.zsh
 
 ## 🚀 Quick Start
 
-Get up and running in 3 steps:
+Get from zero to productive in under 2 minutes:
 
-1. **Install purr**:
+### 1. Install purr
 
-   ```bash
-   git clone https://github.com/m3au/purr.git ~/.zsh/purr
-   echo "source ~/.zsh/purr/purr.zsh" >> ~/.zshrc
-   source ~/.zshrc
-   ```
+```bash
+git clone https://github.com/m3au/purr.git ~/.zsh/purr
+echo "source ~/.zsh/purr/purr.zsh" >> ~/.zshrc
+source ~/.zshrc
+```
 
-2. **Configure 1Password**: Create a vault with GPG and GitHub items (see [Setup Guide](docs/setup.md))
+### 2. Configure 1Password
 
-3. **Use it**:
-   ```bash
-   purr        # Load all keys and configure Git signing
-   purr check  # Verify everything is set up correctly
-   purr lock   # Unload keys when done
-   ```
+Create a vault (default: `purr`) with GPG and GitHub items. See the [detailed setup guide](docs/setup.md) for step-by-step instructions.
 
-That's it! Your keys are loaded and Git signing is configured. See [Usage](#-usage) for more details.
+### 3. Start using purr
+
+```bash
+purr        # Load all keys and configure Git signing
+purr check  # Verify everything is working
+purr lock   # Securely unload keys when done
+```
+
+**That's it!** Your SSH keys, GPG keys, Git signing, and GitHub credentials are all configured and ready to go. 🎉
 
 ## 🔑 Usage
 
@@ -365,30 +369,22 @@ Additional commands available:
 
 ## 🧪 Testing
 
-### Running Tests
-
-Tests are written using [bats](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
-
-**Prerequisites:**
+purr includes a comprehensive test suite using [bats](https://github.com/bats-core/bats-core). Run tests quickly:
 
 ```bash
-brew install bats-core
-```
-
-**Run tests:**
-
-```bash
-bun test
-# or directly with bats
-bats tests/*.bats
+brew install bats-core  # One-time setup
+bun test                # Run all tests (~7 seconds)
+bun run test:unit       # Run unit tests only (~2 seconds)
 ```
 
 ### Test Structure
 
-Tests are planned to be written using [bats](https://github.com/bats-core/bats-core). The test structure will include:
+Tests are written using [bats](https://github.com/bats-core/bats-core). The test structure includes:
 
 - `tests/test_helper.bats` - Common test setup and teardown
 - `tests/purr.bats` - Main test suite for purr functions
+- `tests/unit_obfuscate.bats` - Unit tests for obfuscate_key function
+- `tests/mocks/` - Mock scripts for external commands (op, gpg, git, ssh)
 
 ### Writing Tests
 

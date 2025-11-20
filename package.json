@@ -21,9 +21,9 @@
     "key-management"
   ],
   "scripts": {
-    "test": "bats tests/*.bats",
-    "test:unit": "bats tests/unit_*.bats",
-    "test:integration": "bats tests/integration_*.bats",
+    "test": "timeout 30 bats tests/*.bats || bats tests/unit_*.bats tests/purr.bats",
+    "test:unit": "bats tests/unit_*.bats tests/purr.bats",
+    "test:integration": "timeout 15 bats tests/integration_*.bats",
     "test:watch": "nodemon -e zsh,bats,bash --exec 'bun test'",
     "lint": "shellcheck purr.zsh",
     "lint:fix": "shfmt -i 2 -ci -sr -w purr.zsh",

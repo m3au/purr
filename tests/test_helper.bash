@@ -69,3 +69,12 @@ remove_mock_ssh_socket() {
   rm -f "$PURR_SSH_AUTH_SOCK"
   unset SSH_AUTH_SOCK
 }
+
+# Compatibility wrapper functions for existing tests
+setup_test() {
+  setup
+}
+
+teardown_test() {
+  teardown
+}

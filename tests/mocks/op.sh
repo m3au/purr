@@ -1,50 +1,71 @@
 #!/usr/bin/env bash
 # Mock 1Password CLI for testing
-MOCK_VAULT="${PURR_VAULT_NAME:-purr}"
-MOCK_GPG_ITEM="${PURR_GPG_ITEM:-gpg}"
-MOCK_GITHUB_ITEM="${PURR_GITHUB_ITEM:-GitHub}"
 
-case "$1" in
-  account)
-    case "$2" in
-      get) echo '{"url":"https://test.1password.com","email":"test@example.com"}' ;;
-      *) exit 1 ;;
-    esac
-    ;;
-  item)
-    case "$2" in
-      get)
-        shift 2
-        item=""
-        vault=""
-        field=""
-        while [[ $# -gt 0 ]]; do
-          case "$1" in
-            --vault) vault="$2"; shift 2 ;;
-            --field) field="$2"; shift 2 ;;
-            *) item="$1"; shift ;;
+op() {
+  case "$1" in
+    "account")
+      if [ "$2" = "get" ]; then
+        echo '{"url": "https://test.1password.com", "email": "test@example.com"}'
+        return 0
+      fi
+      ;;
+    "item")
+      if [ "$2" = "get" ]; then
+        local item_name="$4"
+        local field_name="$8"
+        
+        # Mock GPG item
+        if [ "$item_name" = "test-gpg" ] || [ "$item_name" = "gpg" ]; then
+          case "$field_name" in
+            "key_id")
+              echo "TEST123KEY456"
+              ;;
+            "password")
+              if [ "$9" = "--reveal" ]; then
+                echo "test-passphrase"
+              else
+                echo "test-passphrase"
+              fi
+              ;;
+            "public_key")
+              echo "-----BEGIN PGP PUBLIC KEY BLOCK-----\nMock public key\n-----END PGP PUBLIC KEY BLOCK-----"
+              ;;
+            "private_key")
+              echo "-----BEGIN PGP PRIVATE KEY BLOCK-----\nMock private key\n-----END PGP PRIVATE KEY BLOCK-----"
+              ;;
           esac
-        done
-        case "$item" in
-          "$MOCK_GPG_ITEM"|gpg)
-            case "$field" in
-              key_id) echo "ABC123DEF4567890" ;;
-              password|passphrase) echo "mock-passphrase" ;;
-              public_key) echo "-----BEGIN PGP PUBLIC KEY BLOCK-----" ;;
-              private_key) echo "-----BEGIN PGP PRIVATE KEY BLOCK-----" ;;
-            esac
-            ;;
-          "$MOCK_GITHUB_ITEM"|GitHub)
-            case "$field" in
-              username|user|login) echo "mock-user" ;;
-              email|mail) echo "mock@example.com" ;;
-              pat|token|password) echo "ghp_mocktoken1234567890" ;;
-            esac
-            ;;
-        esac
-        ;;
-    esac
-    ;;
-  signin) echo 'export OP_SESSION_test="mock"' ;;
-  signout) ;;
-esac
+        fi
+        
+        # Mock GitHub item
+        if [ "$item_name" = "test-github" ] || [ "$item_name" = "GitHub" ]; then
+          case "$field_name" in
+            "username"|"user"|"login")
+              echo "testuser"
+              ;;
+            "email"|"mail"|"email address")
+              echo "test@example.com"
+              ;;
+            "pat"|"token"|"access token"|"personal access token"|"password")
+              if [ "$9" = "--reveal" ]; then
+                echo "ghp_test1234567890abcdef"
+              else
+                echo "ghp_test1234567890abcdef"
+              fi
+              ;;
+          esac
+        fi
+      fi
+      ;;
+    "signin")
+      echo "OP_SESSION_test=\"mock-session-token\""
+      export OP_SESSION_test="mock-session-token"
+      return 0
+      ;;
+    "signout")
+      unset OP_SESSION_test
+      return 0
+      ;;
+  esac
+}
+
+op "$@"

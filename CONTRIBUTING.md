@@ -73,7 +73,7 @@ bats tests/purr.bats
 
 ### Writing Tests
 
-Tests are planned to be added. When writing tests:
+When writing tests:
 
 - Add tests for new functions in `tests/purr.bats`
 - Use the test helper functions from `tests/test_helper.bats` for setup/teardown

@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Comprehensive test suite using bats (22 unit tests, 6 integration tests)
+- Mock infrastructure for testing external dependencies (op, gpg, git, ssh)
 - Configuration via environment variables for vault and item names
 - Comprehensive documentation (SECURITY.md, CONTRIBUTING.md, CHANGELOG.md)
-- Improved README with installation and configuration instructions
+- Improved README with compelling copy and clear quick start guide
 - GitHub credentials setup integration in main `purr` command
 
 ### Changed
