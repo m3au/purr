@@ -73,6 +73,8 @@ bats tests/purr.bats
 
 ### Writing Tests
 
+Tests are planned to be added. When writing tests:
+
 - Add tests for new functions in `tests/purr.bats`
 - Use the test helper functions from `tests/test_helper.bats` for setup/teardown
 - Mock external commands (like `op`, `gpg`, `git`, `ssh`) where appropriate
@@ -81,7 +83,7 @@ bats tests/purr.bats
 
 #### Mocking Strategy
 
-The test suite includes mock implementations of external commands in `tests/mocks/`:
+The test suite will include mock implementations of external commands in `tests/mocks/`:
 
 - `op.sh` - Mock 1Password CLI
 - `gpg.sh` - Mock GPG commands
