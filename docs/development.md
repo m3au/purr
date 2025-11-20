@@ -50,18 +50,19 @@ prettier --write '*.{json,md}' '**/*.{json,md}'
 
 ```
 purr/
-├── .github/
+├── .github/                     # GitHub configuration (planned)
 │   ├── workflows/
-│   │   └── ci.yml              # GitHub Actions CI workflow
-│   └── ISSUE_TEMPLATE/         # Issue templates
+│   │   └── ci.yml              # GitHub Actions CI workflow (to be added)
+│   └── ISSUE_TEMPLATE/         # Issue templates (to be added)
 ├── docs/                        # Additional documentation
 │   ├── setup.md
 │   ├── configuration.md
 │   ├── troubleshooting.md
-│   └── development.md
-├── tests/                       # Test suite
-│   ├── test_helper.bats        # Test helper functions
-│   └── purr.bats               # Main test file
+│   ├── development.md
+│   └── similar-tools.md
+├── tests/                       # Test suite (planned)
+│   ├── test_helper.bats        # Test helper functions (to be added)
+│   └── purr.bats               # Main test file (to be added)
 ├── purr.zsh                     # Main script
 ├── README.md                    # Main documentation
 ├── CONTRIBUTING.md              # Contribution guidelines
@@ -155,13 +156,13 @@ function_name() {
 
 ## Continuous Integration
 
-CI runs automatically on push and pull requests:
+CI is planned to run automatically on push and pull requests:
 
-- **Lint**: ShellCheck on `purr.zsh`
-- **Test**: bats test suite
-- **Format**: Prettier on markdown/JSON files
+- **Lint**: ShellCheck on `purr.zsh` (manual for now: `bun run lint`)
+- **Test**: bats test suite (to be implemented)
+- **Format**: Prettier on markdown/JSON files (manual for now: `bun run format`)
 
-All checks must pass before merging.
+Once CI is set up, all checks must pass before merging.
 
 ## Release Process
 
