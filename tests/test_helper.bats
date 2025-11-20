@@ -24,6 +24,12 @@ setup() {
   export PURR_VAULT_NAME="test-vault"
   export PURR_GPG_ITEM="test-gpg"
   export PURR_GITHUB_ITEM="test-github"
+  export PURR_SSH_AUTH_SOCK="$TEST_DIR/agent.sock"
+  export PURR_GPG_CACHE_TTL=3600
+  
+  # Create mock SSH socket for testing
+  mkdir -p "$(dirname "$PURR_SSH_AUTH_SOCK")"
+  touch "$PURR_SSH_AUTH_SOCK"
 }
 
 teardown() {
@@ -67,3 +73,27 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
+# Helper function to create mock config file
+create_mock_config() {
+  local config_file="$TEST_DIR/.purrrc"
+  cat > "$config_file" << EOF
+export PURR_VAULT_NAME="custom-vault"
+export PURR_GPG_ITEM="custom-gpg"
+export PURR_GITHUB_ITEM="custom-github"
+EOF
+  echo "$config_file"
+}
+
+
+# Load assertion utilities
+load_assertions() {
+  # Source assertion utilities if available
+  if [ -f "$BATS_TEST_DIRNAME/utils/assertions.bash" ]; then
+    source "$BATS_TEST_DIRNAME/utils/assertions.bash"
+  fi
+}
+
+# Setup assertions in setup
+setup_assertions() {
+  load_assertions
+}

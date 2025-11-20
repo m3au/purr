@@ -35,8 +35,15 @@ jobs:
           cd bats-core
           sudo ./install.sh /usr/local
       
+      - name: Install test dependencies
+        run: |
+          # Ensure mock scripts are executable
+          chmod +x tests/mocks/*.sh tests/utils/*.bash 2>/dev/null || true
+      
       - name: Run tests
         run: |
+          # Make test helpers available
+          export PATH="$PWD/tests/mocks:$PATH"
           bats tests/*.bats || true
           echo "Tests completed (some may be skipped)"
 

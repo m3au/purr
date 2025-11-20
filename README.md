@@ -16,6 +16,26 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 - 🔍 Key status checking capabilities
 - 🎯 GitHub token configuration for Cursor MCP servers
 
+## 👥 Who is this for?
+
+purr is designed for developers and teams who want a unified, automated solution for managing SSH keys, GPG keys, and Git signing. Perfect for:
+
+- **1Password Users**: Developers already using 1Password for credential management who want to leverage it for SSH/GPG keys
+- **Security-Conscious Teams**: Organizations requiring Git commit signing and secure key management practices
+- **Daily Developers**: Developers who want a single command to load all keys and configure their development environment
+- **Team Leads**: Those setting up standardized development environments across team members
+- **DevOps Engineers**: Professionals managing multiple machines who need consistent key management workflows
+- **macOS Users**: Developers on macOS who need seamless integration with system tools and 1Password
+
+### Use Cases
+
+- **Daily Development Workflow**: Load all keys at the start of your day with a single `purr` command
+- **New Machine Setup**: Quickly configure a new development machine with all necessary keys and Git signing
+- **Team Onboarding**: Provide consistent setup instructions for new team members
+- **Secure Key Rotation**: Easily rotate keys stored in 1Password without manual configuration
+- **Temporary Development Environments**: Load keys when needed, lock them when done
+- **CI/CD Key Management**: Future support for automated key management in CI/CD pipelines
+
 ## 📋 Prerequisites
 
 ### Required
@@ -148,6 +168,29 @@ Then source it in your `.zshrc` before sourcing purr:
 source ~/.zsh/purr/purr.zsh
 ```
 
+## 🚀 Quick Start
+
+Get up and running in 3 steps:
+
+1. **Install purr**:
+
+   ```bash
+   git clone https://github.com/m3au/purr.git ~/.zsh/purr
+   echo "source ~/.zsh/purr/purr.zsh" >> ~/.zshrc
+   source ~/.zshrc
+   ```
+
+2. **Configure 1Password**: Create a vault with GPG and GitHub items (see [Setup Guide](docs/setup.md))
+
+3. **Use it**:
+   ```bash
+   purr        # Load all keys and configure Git signing
+   purr check  # Verify everything is set up correctly
+   purr lock   # Unload keys when done
+   ```
+
+That's it! Your keys are loaded and Git signing is configured. See [Usage](#-usage) for more details.
+
 ## 🔑 Usage
 
 ### Implemented Commands
@@ -157,6 +200,114 @@ source ~/.zsh/purr/purr.zsh
 - `purr check` - Checks key status
 - `purr -v` - Verbose mode for any command
 - `purr -h` - Shows help message
+
+### Common Workflows
+
+#### Daily Development Workflow
+
+```bash
+# Morning: Load all keys
+purr
+
+# Verify everything is working
+purr check
+
+# Make commits (automatically signed)
+git commit -m "Your commit message"
+
+# End of day: Lock everything
+purr lock
+```
+
+#### Setting Up a New Machine
+
+```bash
+# Install purr
+git clone https://github.com/m3au/purr.git ~/.zsh/purr
+echo "source ~/.zsh/purr/purr.zsh" >> ~/.zshrc
+
+# Configure 1Password vault with GPG and GitHub items
+# (see docs/setup.md for details)
+
+# Load keys
+purr
+
+# Verify setup
+purr check
+```
+
+#### Troubleshooting
+
+```bash
+# Check status with verbose output
+purr check -v
+
+# Try loading keys with verbose output
+purr -v
+```
+
+### Examples
+
+#### Example 1: Basic Usage
+
+```bash
+# Load all keys and configure Git signing
+$ purr
+ᓚᘏᗢ purr initializing...
+✅ 1Password is running and authenticated
+Connected to 1Password SSH agent.
+GPG key loaded successfully and Git configured for signing.
+
+Credentials loaded:
+GitHub: your-username
+GitHub Token: ghp_****...****7890
+Git signing: Enabled
+GPG: ABC1****...****2345
+SSH: Connected
+ᓚᘏᗢ purr
+```
+
+#### Example 2: Checking Status
+
+```bash
+$ purr check
+Checking for SSH keys:
+  SSH keys found:
+    ~/.ssh/id_rsa
+    ~/.ssh/id_ed25519
+
+Checking SSH agent connection:
+  Connected to SSH agent at ~/Library/Group Containers/.../agent.sock
+  Loaded keys: 3
+
+Checking for GPG keys:
+  GPG keys found:
+    Key ID: ABC123DEF456
+    Name: Your Name <your@email.com>
+
+Checking Git GPG signing status:
+  Git GPG signing is enabled.
+    Signing key: ABC123DEF456
+
+Checking GitHub token status:
+  GITHUB_TOKEN environment variable: Set (ghp_****...****7890)
+```
+
+#### Example 3: Locking Keys
+
+```bash
+$ purr lock
+System locked
+ᓚᘏᗢ hiss
+
+# Verify keys are unloaded
+$ purr check
+Checking SSH agent connection:
+  Not connected to any SSH agent.
+
+Checking for GPG keys:
+  No GPG keys found on this system.
+```
 
 ### GitHub Token Management
 

@@ -75,9 +75,34 @@ bats tests/purr.bats
 
 - Add tests for new functions in `tests/purr.bats`
 - Use the test helper functions from `tests/test_helper.bats` for setup/teardown
-- Mock external commands (like `op`, `gpg`) where appropriate
+- Mock external commands (like `op`, `gpg`, `git`, `ssh`) where appropriate
 - Test both success and error paths
 - Keep tests focused and readable
+
+#### Mocking Strategy
+
+The test suite includes mock implementations of external commands in `tests/mocks/`:
+
+- `op.sh` - Mock 1Password CLI
+- `gpg.sh` - Mock GPG commands
+- `git.sh` - Mock Git commands
+- `ssh.sh` - Mock SSH commands
+
+To use mocks in tests:
+
+```bash
+# In test setup, prepend mock directory to PATH
+export PATH="$BATS_TEST_DIRNAME/mocks:$PATH"
+```
+
+#### Test Coverage Goals
+
+- **Unit Tests**: Pure functions (obfuscate_key, configuration loading)
+- **Integration Tests**: Functions that interact with external tools (op, gpg, git, ssh)
+- **Error Handling**: Test failure paths and error conditions
+- **Edge Cases**: Test with invalid inputs, missing dependencies, etc.
+
+Aim for **80%+ coverage** of critical functions.
 
 ### Linting
 
