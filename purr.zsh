@@ -1,3 +1,9 @@
+# Configuration: 1Password vault and item names
+# These can be overridden via environment variables
+PURR_VAULT_NAME="${PURR_VAULT_NAME:-purr}"
+PURR_GPG_ITEM="${PURR_GPG_ITEM:-gpg}"
+PURR_GITHUB_ITEM="${PURR_GITHUB_ITEM:-GitHub}"
+
 obfuscate_key() {
   local input=$1
   local visible_chars=4
@@ -62,8 +68,8 @@ load_gpg_key() {
   $verbose && echo "Starting GPG key loading process..."
   $verbose && echo "Retrieving GPG key information from 1Password..."
 
-  local gpg_key_id=$(op item get "gpg" --vault "purr" --field key_id)
-  local password=$(op item get "gpg" --vault "purr" --field password --reveal)
+  local gpg_key_id=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field key_id)
+  local password=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field password --reveal)
 
   if [ -z "$gpg_key_id" ] || [ -z "$password" ]; then
     $verbose && echo "Failed to retrieve key ID or password from 1Password."
@@ -71,8 +77,8 @@ load_gpg_key() {
   fi
 
   $verbose && echo "Retrieving public and private keys..."
-  local public_key=$(op item get "gpg" --vault "purr" --field public_key)
-  local private_key=$(op item get "gpg" --vault "purr" --field private_key)
+  local public_key=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field public_key)
+  local private_key=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field private_key)
 
   if [ -z "$public_key" ] || [ -z "$private_key" ]; then
     $verbose && echo "Failed to retrieve public or private key from 1Password."
@@ -297,7 +303,7 @@ enable_git_signing() {
   $verbose && echo "Starting Git GPG signing configuration..."
   $verbose && echo "Retrieving GPG key ID from 1Password..."
 
-  local gpg_key_id=$(op item get "gpg" --vault "purr" --field key_id)
+  local gpg_key_id=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field key_id)
 
   if [ -z "$gpg_key_id" ]; then
     $verbose && echo "No GPG key ID found in 1Password. Make sure a GPG key is loaded."
@@ -610,7 +616,7 @@ setup_github_credentials() {
 
   # First, let's verify the item exists
   $verbose && echo "Checking GitHub item in 1Password..."
-  if ! op item get "GitHub" --vault "purr" >/dev/null 2>&1; then
+  if ! op item get "$PURR_GITHUB_ITEM" --vault "$PURR_VAULT_NAME" >/dev/null 2>&1; then
     
     return 0  # GitHub is optional
   fi
@@ -623,7 +629,7 @@ setup_github_credentials() {
   $verbose && echo "Retrieving GitHub credentials..."
   # Try common field names for username
   for field in "username" "user" "login"; do
-    if github_user=$(op item get "GitHub" --vault "purr" --field "$field" 2>/dev/null); then
+    if github_user=$(op item get "$PURR_GITHUB_ITEM" --vault "$PURR_VAULT_NAME" --field "$field" 2>/dev/null); then
       $verbose && echo "✓ Username retrieved"
       break
     fi
@@ -631,7 +637,7 @@ setup_github_credentials() {
 
   # Try common field names for email
   for field in "email" "mail" "email address"; do
-    if github_email=$(op item get "GitHub" --vault "purr" --field "$field" 2>/dev/null); then
+    if github_email=$(op item get "$PURR_GITHUB_ITEM" --vault "$PURR_VAULT_NAME" --field "$field" 2>/dev/null); then
       $verbose && echo "✓ Email retrieved"
       break
     fi
@@ -639,7 +645,7 @@ setup_github_credentials() {
 
   # Try common field names for PAT
   for field in "pat" "token" "access token" "personal access token" "password"; do
-    if github_pat=$(op item get "GitHub" --vault "purr" --field "$field" --reveal 2>/dev/null); then
+    if github_pat=$(op item get "$PURR_GITHUB_ITEM" --vault "$PURR_VAULT_NAME" --field "$field" --reveal 2>/dev/null); then
       $verbose && echo "✓ Token retrieved"
       break
     fi
