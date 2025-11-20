@@ -11,6 +11,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 ### Reporting Bugs
 
 If you find a bug, please open an issue with:
+
 - A clear title and description
 - Steps to reproduce the bug
 - Expected vs actual behavior
@@ -20,6 +21,7 @@ If you find a bug, please open an issue with:
 ### Suggesting Features
 
 Feature suggestions are welcome! Please open an issue with:
+
 - A clear description of the feature
 - Use cases and examples
 - Potential implementation ideas (if any)
@@ -133,6 +135,7 @@ Follow conventional commits format:
 - `chore:` for maintenance tasks
 
 Example:
+
 ```
 feat: add support for configurable SSH agent socket path
 
@@ -152,4 +155,3 @@ PURR_SSH_AUTH_SOCK environment variable.
 Feel free to open an issue for questions or reach out to the maintainers.
 
 Thank you for contributing to purr! 🐱
-

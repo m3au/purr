@@ -25,6 +25,7 @@ cd purr
 ### Testing
 
 Run tests:
+
 ```bash
 bats tests/*.bats
 ```
@@ -32,6 +33,7 @@ bats tests/*.bats
 ### Linting
 
 Check shell script:
+
 ```bash
 shellcheck purr.zsh
 ```
@@ -39,6 +41,7 @@ shellcheck purr.zsh
 ### Formatting
 
 Format markdown and JSON:
+
 ```bash
 prettier --write '*.{json,md}' '**/*.{json,md}'
 ```
@@ -96,22 +99,26 @@ function_name() {
 ## Development Workflow
 
 1. **Create a branch:**
+
    ```bash
    git checkout -b feature/my-feature
    ```
 
 2. **Make changes:**
+
    - Follow code style guidelines
    - Add tests for new features
    - Update documentation
 
 3. **Test your changes:**
+
    ```bash
    shellcheck purr.zsh
    bats tests/*.bats
    ```
 
 4. **Commit:**
+
    ```bash
    git add .
    git commit -m "feat: add new feature"
@@ -137,10 +144,10 @@ function_name() {
 @test "description of what is being tested" {
   # Arrange
   setup_test_environment
-  
+
   # Act
   result=$(function_to_test "input")
-  
+
   # Assert
   [ "$result" = "expected_output" ]
 }
@@ -200,4 +207,3 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed contribution guidelines.
 - Open an issue for bugs or feature requests
 - Check existing issues and discussions
 - Review documentation in `docs/` directory
-

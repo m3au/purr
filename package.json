@@ -25,8 +25,11 @@
     "test:watch": "nodemon -e zsh,bats,bash --exec 'bun test'",
     "lint": "shellcheck purr.zsh",
     "lint:fix": "shfmt -i 2 -ci -sr -w purr.zsh",
-    "format": "prettier --write '*.{json,md}'",
-    "precommit": "bun run lint && bun run test",
+    "fmt": "prettier --write '*.{json,md}' '**/*.{json,md}'",
+    "fmt:check": "prettier --check '*.{json,md}' '**/*.{json,md}'",
+    "format": "bun run fmt",
+    "format:check": "bun run fmt:check",
+    "precommit": "bun run lint && bun run fmt:check && bun run test",
     "prepare": "bun run precommit"
   },
   "devDependencies": {

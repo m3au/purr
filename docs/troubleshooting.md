@@ -7,10 +7,12 @@ Common issues and solutions when using purr.
 ### "Failed to authenticate with 1Password CLI"
 
 **Symptoms:**
+
 - Error message when running `purr`
 - 1Password CLI authentication fails
 
 **Solutions:**
+
 1. Ensure 1Password desktop app is running and you're signed in
 2. Check that 1Password CLI integration is enabled:
    - Open 1Password
@@ -28,10 +30,12 @@ Common issues and solutions when using purr.
 ### "No GPG key ID found in 1Password"
 
 **Symptoms:**
+
 - Error when loading GPG keys
 - Cannot find GPG item in vault
 
 **Solutions:**
+
 1. Verify the item name matches `PURR_GPG_ITEM` (default: `gpg`)
 2. Check that the vault name matches `PURR_VAULT_NAME` (default: `purr`)
 3. Ensure the item has a `key_id` field
@@ -43,10 +47,12 @@ Common issues and solutions when using purr.
 ### "Failed to retrieve public or private key from 1Password"
 
 **Symptoms:**
+
 - GPG key import fails
 - Missing key data
 
 **Solutions:**
+
 1. Verify both `public_key` and `private_key` fields exist in the GPG item
 2. Ensure keys are complete (include `-----BEGIN` and `-----END` lines)
 3. Check for any formatting issues in the key fields
@@ -56,10 +62,12 @@ Common issues and solutions when using purr.
 ### "Failed to connect to 1Password SSH agent"
 
 **Symptoms:**
+
 - SSH keys not loading
 - Cannot connect to SSH agent
 
 **Solutions:**
+
 1. Ensure 1Password is running
 2. Verify SSH agent is enabled in 1Password:
    - Open 1Password
@@ -78,9 +86,11 @@ Common issues and solutions when using purr.
 ### "No identities available in the 1Password SSH agent"
 
 **Symptoms:**
+
 - SSH agent connected but no keys available
 
 **Solutions:**
+
 1. Add SSH keys to 1Password:
    - Open 1Password
    - Create a new item → SSH Key
@@ -92,10 +102,12 @@ Common issues and solutions when using purr.
 ### "GPG signing test failed"
 
 **Symptoms:**
+
 - GPG keys loaded but signing doesn't work
 - Git commits fail to sign
 
 **Solutions:**
+
 1. Verify GPG key ID is correct:
    ```bash
    gpg --list-secret-keys
@@ -119,10 +131,12 @@ Common issues and solutions when using purr.
 ### "GPG passphrase is not cached in the agent"
 
 **Symptoms:**
+
 - Frequent passphrase prompts
 - GPG agent not caching passphrase
 
 **Solutions:**
+
 1. Check GPG agent configuration:
    ```bash
    cat ~/.gnupg/gpg-agent.conf
@@ -142,10 +156,12 @@ Common issues and solutions when using purr.
 ### "One or more GitHub credentials are missing"
 
 **Symptoms:**
+
 - GitHub credentials not configured
 - Git user/email not set
 
 **Solutions:**
+
 1. Verify the GitHub item exists in your vault
 2. Check that required fields are present:
    - username (or `user`, or `login`)
@@ -157,10 +173,12 @@ Common issues and solutions when using purr.
 ### "GITHUB_TOKEN not set"
 
 **Symptoms:**
+
 - GitHub token not available
 - Tools requiring GITHUB_TOKEN fail
 
 **Solutions:**
+
 1. Run `purr` to load credentials
 2. Verify the token is set:
    ```bash
@@ -173,9 +191,11 @@ Common issues and solutions when using purr.
 ### Script fails with "should be sourced, not executed"
 
 **Symptoms:**
+
 - Error when trying to run purr.zsh directly
 
 **Solutions:**
+
 1. Source the script instead of executing it:
    ```zsh
    source ~/.zsh/purr/purr.zsh
@@ -185,10 +205,12 @@ Common issues and solutions when using purr.
 ### Commands not found after installation
 
 **Symptoms:**
+
 - `purr` command not available
 - "command not found" error
 
 **Solutions:**
+
 1. Ensure the script is sourced in your `~/.zshrc`:
    ```zsh
    source ~/.zsh/purr/purr.zsh
@@ -202,9 +224,11 @@ Common issues and solutions when using purr.
 ### Temporary files not cleaned up
 
 **Symptoms:**
+
 - Temporary GPG key files remain after use
 
 **Solutions:**
+
 1. This should not happen - cleanup is automatic
 2. If you see temp files, report it as a bug
 3. Manually clean up:
@@ -229,4 +253,3 @@ If you're still experiencing issues:
    - Verbose output (with sensitive data redacted)
    - Your environment (macOS version, ZSH version)
    - Configuration (vault/item names if different from defaults)
-

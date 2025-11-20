@@ -110,4 +110,3 @@ echo "GitHub Item: ${PURR_GITHUB_ITEM:-GitHub}"
 echo "SSH Socket: ${PURR_SSH_AUTH_SOCK:-default}"
 echo "GPG TTL: ${PURR_GPG_CACHE_TTL:-34560000}"
 ```
-

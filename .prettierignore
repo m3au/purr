@@ -1,0 +1,21 @@
+# Test files and fixtures
+tests/
+*.bats
+
+# Lock files
+bun.lockb
+package-lock.json
+yarn.lock
+
+# Build artifacts
+*.min.js
+*.out.js
+dist/
+build/
+
+# Generated files
+*.generated.*
+
+# Documentation snapshots
+docs/snapshots/
+

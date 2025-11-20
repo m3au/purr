@@ -1,0 +1,22 @@
+# Add directories or file patterns to ignore during indexing (e.g. foo/ or *.csv)
+
+# Test files and fixtures
+tests/
+*.bats
+
+# Build artifacts
+*.tmp
+*.log
+*.out
+
+# Lock files
+bun.lockb
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/
+

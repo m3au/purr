@@ -69,7 +69,7 @@ When using purr, please follow these security best practices:
    - Trap handlers ensure cleanup on EXIT, INT, and TERM signals
    - Passphrase files used for GPG testing are also cleaned up
 
-2. **Environment Variables**: The `GITHUB_TOKEN` is stored as an environment variable and may be visible in process lists. This variable is automatically unset when running `purr lock`. 
+2. **Environment Variables**: The `GITHUB_TOKEN` is stored as an environment variable and may be visible in process lists. This variable is automatically unset when running `purr lock`.
 
    - Consider the security implications of environment variables in process lists
    - Environment variables are cleared when locking keys via `purr lock`
@@ -97,4 +97,3 @@ We follow responsible disclosure practices:
 - We will credit you in our security advisories (unless you prefer to remain anonymous)
 
 Thank you for helping keep purr and its users safe!
-

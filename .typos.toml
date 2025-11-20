@@ -1,0 +1,31 @@
+[default]
+extend-ignore-words = [
+  "purr",
+  "zsh",
+  "1password",
+  "gpg",
+  "sshadd",
+  "keygrip",
+  "keyring",
+  "passphrase",
+  "pinentry",
+  "signingkey",
+  "m3au",
+  "op",
+  "lolcat",
+  "shellcheck",
+  "shfmt",
+  "bats",
+  "oxlint",
+  "coderabbit",
+]
+
+[files]
+extend-exclude = [
+  "*.lock",
+  "*.lockb",
+  "*.min.js",
+  "vendor/",
+  "node_modules/",
+]
+

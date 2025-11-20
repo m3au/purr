@@ -1,24 +1,66 @@
 # Dependencies
 node_modules/
 bun.lockb
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Test coverage
 coverage/
 .nyc_output/
+.nyc_cache/
 
 # OS files
 .DS_Store
-*.log
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 *.swp
-.env
+*.swo
+*~
 
-# Editor directories
+# Environment files
+.env
+.env.local
+.envrc
+
+# Editor directories and files
 .idea/
 .vscode/
 *.sublime-*
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
 
 # Backup files
 *.backup
 *.bak
 *.old
+*.orig
+
+# Build artifacts and temporary files
+*.tmp
+*.temp
+*.log
+*.trace
+*.crash
+*.out
+*.o
+*.a
+dist/
+build/
+zig-cache/
+.zig-cache/
+
+# Test artifacts
+*.test.log
+test-results/
+playwright-report/
+
+# Lock files (keep bun.lockb for consistency)
+# bun.lockb already listed above
+
 

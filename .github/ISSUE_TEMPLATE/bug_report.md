@@ -1,9 +1,9 @@
 ---
 name: Bug Report
 about: Create a report to help us improve
-title: '[BUG] '
+title: "[BUG] "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
 ## Bug Description
@@ -34,6 +34,7 @@ What actually happened instead.
 ## Configuration
 
 If different from defaults, please include:
+
 - Vault name: `...`
 - GPG item name: `...`
 - GitHub item name: `...`
@@ -56,4 +57,3 @@ Add any other context about the problem here.
 - [ ] I've checked the troubleshooting guide in `docs/troubleshooting.md`
 - [ ] I've run `purr check` and reviewed the output
 - [ ] I've verified my 1Password configuration is correct
-

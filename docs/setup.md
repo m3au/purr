@@ -21,6 +21,7 @@ brew install --cask 1password-cli
 ```
 
 Then authenticate:
+
 ```bash
 op signin
 ```
@@ -75,11 +76,13 @@ brew install lolcat
 ### Manual Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/m3au/purr.git ~/.zsh/purr
    ```
 
 2. Source the script in your `~/.zshrc`:
+
    ```zsh
    source ~/.zsh/purr/purr.zsh
    ```
@@ -129,6 +132,7 @@ purr
 ```
 
 This will:
+
 - Connect to 1Password SSH agent
 - Load your GPG keys
 - Configure Git commit signing
@@ -143,4 +147,3 @@ purr lock
 ## Troubleshooting
 
 See [troubleshooting.md](troubleshooting.md) for common issues and solutions.
-

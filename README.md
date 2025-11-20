@@ -35,12 +35,15 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 ### Prerequisites Setup
 
 1. **Install 1Password CLI**:
+
    ```bash
    brew install --cask 1password-cli
    ```
+
    Then authenticate: `op signin`
 
 2. **Install GPG** (if not already installed):
+
    ```bash
    brew install gnupg
    ```
@@ -53,11 +56,13 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 ### Manual Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/m3au/purr.git ~/.zsh/purr
    ```
 
 2. Source the script in your ZSH configuration (`~/.zshrc`):
+
    ```zsh
    source ~/.zsh/purr/purr.zsh
    ```
@@ -72,6 +77,7 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 #### [antidote](https://github.com/mattmc3/antidote)
 
 Add to your `.zplugins.txt`:
+
 ```
 m3au/purr
 ```
@@ -81,6 +87,7 @@ Then run `antidote bundle` or restart your shell.
 #### [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh)
 
 1. Clone into custom plugins directory:
+
    ```bash
    git clone https://github.com/m3au/purr.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/purr
    ```
@@ -101,6 +108,7 @@ Before using purr, you need to set up your 1Password vault with the required ite
 Create a vault (default name: `purr`) with the following items:
 
 1. **GPG Item** (default name: `gpg`)
+
    - Required fields:
      - `key_id`: Your GPG key ID (e.g., `ABC123DEF456`)
      - `password`: Your GPG key passphrase
@@ -134,6 +142,7 @@ export PURR_GITHUB_ITEM="GitHub"
 ```
 
 Then source it in your `.zshrc` before sourcing purr:
+
 ```zsh
 [ -f ~/.purrrc ] && source ~/.purrrc
 source ~/.zsh/purr/purr.zsh
@@ -160,6 +169,7 @@ When running `purr`, the GitHub Personal Access Token is:
 ### Current Implementation
 
 The default `purr` command already handles:
+
 - ✅ 1Password integration (authentication and credential retrieval)
 - ✅ SSH key management (loads from 1Password SSH agent)
 - ✅ GPG key management (imports and configures Git signing)
@@ -167,6 +177,7 @@ The default `purr` command already handles:
 - ✅ Git signing (enables GPG commit signing)
 
 Additional commands available:
+
 - `purr check` - Check status of all keys
 - `purr lock` - Unload all keys and lock 1Password
 
@@ -208,11 +219,13 @@ Additional commands available:
 Tests are written using [bats](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
 
 **Prerequisites:**
+
 ```bash
 brew install bats-core
 ```
 
 **Run tests:**
+
 ```bash
 bun test
 # or directly with bats
@@ -237,6 +250,7 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 For security-related issues, please see [SECURITY.md](SECURITY.md).
 
 **Important Security Notes:**
+
 - Never share your 1Password vault items or GPG keys
 - Always run `purr lock` when finished to unload keys
 - Review the script before sourcing it in your shell
@@ -247,6 +261,7 @@ For security-related issues, please see [SECURITY.md](SECURITY.md).
 ### 1Password Authentication Issues
 
 If you see authentication errors:
+
 1. Ensure 1Password desktop app is running and you're signed in
 2. Run `op signin` to authenticate with the CLI
 3. Check that 1Password CLI integration is enabled in preferences
@@ -254,6 +269,7 @@ If you see authentication errors:
 ### GPG Key Issues
 
 If GPG keys aren't loading:
+
 1. Verify the GPG key ID matches your actual key
 2. Check that the passphrase is correct
 3. Ensure the public and private keys are properly formatted in 1Password
@@ -262,6 +278,7 @@ If GPG keys aren't loading:
 ### SSH Agent Issues
 
 If SSH keys aren't available:
+
 1. Ensure 1Password is running and SSH agent is enabled
 2. Check that SSH keys are added to 1Password
 3. Verify the SSH agent socket path (default: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`)
@@ -269,6 +286,7 @@ If SSH keys aren't available:
 ### GitHub Credentials Issues
 
 If GitHub credentials aren't being set:
+
 1. Verify the GitHub item exists in your 1Password vault
 2. Check that the required fields (username, email, token) are present
 3. GitHub setup is optional and won't fail if the item is missing

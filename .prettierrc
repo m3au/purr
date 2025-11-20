@@ -1,13 +1,30 @@
 {
-  "semi": true,
+  "arrowParens": "avoid",
+  "printWidth": 120,
   "trailingComma": "all",
+  "useTabs": false,
+  "quoteProps": "preserve",
+  "semi": true,
   "singleQuote": false,
-  "printWidth": 80,
   "tabWidth": 2,
   "endOfLine": "lf",
-  "arrowParens": "always",
   "bracketSpacing": true,
   "overrides": [
+    {
+      "files": [".vscode/*.json"],
+      "options": {
+        "parser": "jsonc",
+        "quoteProps": "preserve",
+        "singleQuote": false,
+        "trailingComma": "all"
+      }
+    },
+    {
+      "files": ["*.md"],
+      "options": {
+        "printWidth": 80
+      }
+    },
     {
       "files": ["*.json", "*.jsonc"],
       "options": {

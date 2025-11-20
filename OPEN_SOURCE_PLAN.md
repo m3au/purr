@@ -113,6 +113,7 @@ Consider making hardcoded values configurable:
 - [x] GPG agent cache TTL (configurable via PURR_GPG_CACHE_TTL)
 
 Options:
+
 - [x] Environment variables (all options implemented)
 - [x] Config file (~/.purrrc) (implemented)
 - [ ] Command-line flags (not implemented - environment variables preferred)
@@ -179,6 +180,7 @@ PURR_GITHUB_ITEM="${PURR_GITHUB_ITEM:-GitHub}"
 ### Add Config File Support
 
 Create `~/.purrrc`:
+
 ```zsh
 # purr configuration
 export PURR_VAULT_NAME="purr"
@@ -229,4 +231,3 @@ docs/
 - Consider plugin architecture for future password manager support
 - Maintain backward compatibility when possible
 - Document all breaking changes in CHANGELOG
-

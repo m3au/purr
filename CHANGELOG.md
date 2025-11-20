@@ -8,22 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Configuration via environment variables for vault and item names
 - Comprehensive documentation (SECURITY.md, CONTRIBUTING.md, CHANGELOG.md)
 - Improved README with installation and configuration instructions
 - GitHub credentials setup integration in main `purr` command
 
 ### Changed
+
 - 1Password vault name is now configurable via `PURR_VAULT_NAME` environment variable
 - GPG item name is now configurable via `PURR_GPG_ITEM` environment variable
 - GitHub item name is now configurable via `PURR_GITHUB_ITEM` environment variable
 
 ### Fixed
+
 - Missing call to `setup_github_credentials()` in main function
 
 ## [1.0.0] - 2025-01-20
 
 ### Added
+
 - Initial release
 - 1Password integration for secure key storage
 - SSH key management via 1Password SSH agent
@@ -36,4 +40,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [Unreleased]: https://github.com/m3au/purr/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/m3au/purr/releases/tag/v1.0.0
-
