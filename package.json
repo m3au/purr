@@ -22,6 +22,8 @@
   ],
   "scripts": {
     "test": "bats tests/*.bats",
+    "test:unit": "bats tests/unit_*.bats",
+    "test:integration": "bats tests/integration_*.bats",
     "test:watch": "nodemon -e zsh,bats,bash --exec 'bun test'",
     "lint": "shellcheck purr.zsh",
     "lint:fix": "shfmt -i 2 -ci -sr -w purr.zsh",
