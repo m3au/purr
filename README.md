@@ -32,24 +32,112 @@ A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG
 
 ## 🛠 Installation
 
-### Using a ZSH plugin manager
+### Prerequisites Setup
+
+1. **Install 1Password CLI**:
+   ```bash
+   brew install --cask 1password-cli
+   ```
+   Then authenticate: `op signin`
+
+2. **Install GPG** (if not already installed):
+   ```bash
+   brew install gnupg
+   ```
+
+3. **Install lolcat** (optional, for colorful output):
+   ```bash
+   brew install lolcat
+   ```
+
+### Manual Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/m3au/purr.git ~/.zsh/purr
+   ```
+
+2. Source the script in your ZSH configuration (`~/.zshrc`):
+   ```zsh
+   source ~/.zsh/purr/purr.zsh
+   ```
+
+3. Reload your shell:
+   ```bash
+   source ~/.zshrc
+   ```
+
+### Using a ZSH Plugin Manager
 
 #### [antidote](https://github.com/mattmc3/antidote)
 
-### Manual installation
+Add to your `.zplugins.txt`:
+```
+m3au/purr
+```
 
-1. Clone the repository
-2. Source the init script in your ZSH configuration (e.g., `~/.zshrc`):
+Then run `antidote bundle` or restart your shell.
 
-   ```zsh
-   source path/to/purr/init.zsh
+#### [oh-my-zsh](https://github.com/ohmyzsh/ohmyzsh)
+
+1. Clone into custom plugins directory:
+   ```bash
+   git clone https://github.com/m3au/purr.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/purr
    ```
 
-3. Add the plugin to your ZSH plugins list:
-
+2. Add to your `.zshrc` plugins array:
    ```zsh
-   antidote bundle <path-to-purr>
+   plugins=(... purr)
    ```
+
+## ⚙️ Configuration
+
+### 1Password Setup
+
+Before using purr, you need to set up your 1Password vault with the required items:
+
+#### Required Vault Structure
+
+Create a vault (default name: `purr`) with the following items:
+
+1. **GPG Item** (default name: `gpg`)
+   - Required fields:
+     - `key_id`: Your GPG key ID (e.g., `ABC123DEF456`)
+     - `password`: Your GPG key passphrase
+     - `public_key`: Your public GPG key (paste full key)
+     - `private_key`: Your private GPG key (paste full key)
+
+2. **GitHub Item** (default name: `GitHub`)
+   - Required fields (one of the following field names):
+     - Username: `username`, `user`, or `login`
+     - Email: `email`, `mail`, or `email address`
+     - Personal Access Token: `pat`, `token`, `access token`, `personal access token`, or `password`
+
+#### Customizing Vault and Item Names
+
+You can customize the vault and item names via environment variables:
+
+```zsh
+# In your ~/.zshrc or ~/.purrrc
+export PURR_VAULT_NAME="my-vault-name"
+export PURR_GPG_ITEM="my-gpg-item"
+export PURR_GITHUB_ITEM="my-github-item"
+```
+
+Alternatively, create a `~/.purrrc` file:
+
+```zsh
+# purr configuration
+export PURR_VAULT_NAME="purr"
+export PURR_GPG_ITEM="gpg"
+export PURR_GITHUB_ITEM="GitHub"
+```
+
+Then source it in your `.zshrc` before sourcing purr:
+```zsh
+[ -f ~/.purrrc ] && source ~/.purrrc
+source ~/.zsh/purr/purr.zsh
+```
 
 ## 🔑 Usage
 
@@ -123,6 +211,57 @@ bun test
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
+## 🔒 Security
+
+For security-related issues, please see [SECURITY.md](SECURITY.md).
+
+**Important Security Notes:**
+- Never share your 1Password vault items or GPG keys
+- Always run `purr lock` when finished to unload keys
+- Review the script before sourcing it in your shell
+- The script automatically obfuscates sensitive data in output
+
+## 🐛 Troubleshooting
+
+### 1Password Authentication Issues
+
+If you see authentication errors:
+1. Ensure 1Password desktop app is running and you're signed in
+2. Run `op signin` to authenticate with the CLI
+3. Check that 1Password CLI integration is enabled in preferences
+
+### GPG Key Issues
+
+If GPG keys aren't loading:
+1. Verify the GPG key ID matches your actual key
+2. Check that the passphrase is correct
+3. Ensure the public and private keys are properly formatted in 1Password
+4. Try running with `-v` flag for verbose output
+
+### SSH Agent Issues
+
+If SSH keys aren't available:
+1. Ensure 1Password is running and SSH agent is enabled
+2. Check that SSH keys are added to 1Password
+3. Verify the SSH agent socket path (default: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`)
+
+### GitHub Credentials Issues
+
+If GitHub credentials aren't being set:
+1. Verify the GitHub item exists in your 1Password vault
+2. Check that the required fields (username, email, token) are present
+3. GitHub setup is optional and won't fail if the item is missing
+
+## 📚 Documentation
+
+- [Contributing Guidelines](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Changelog](CHANGELOG.md)
+
 ## 🤝 Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

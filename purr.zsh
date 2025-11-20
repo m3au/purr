@@ -502,6 +502,8 @@ purr() {
       return 1
     fi
 
+    # Setup GitHub credentials (optional, won't fail if not available)
+    setup_github_credentials $verbose
 
     echo -e "\nCredentials loaded:" | lolcat -a
     local github_user=$(git config --global user.name)
