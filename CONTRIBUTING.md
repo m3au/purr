@@ -53,9 +53,29 @@ Feature suggestions are welcome! Please open an issue with:
 
 ### Running Tests
 
+Tests are written using [bats](https://github.com/bats-core/bats-core):
+
 ```bash
+# Install bats if not already installed
+brew install bats-core
+
+# Run all tests
 bun test
+
+# Or run directly with bats
+bats tests/*.bats
+
+# Run specific test file
+bats tests/purr.bats
 ```
+
+### Writing Tests
+
+- Add tests for new functions in `tests/purr.bats`
+- Use the test helper functions from `tests/test_helper.bats` for setup/teardown
+- Mock external commands (like `op`, `gpg`) where appropriate
+- Test both success and error paths
+- Keep tests focused and readable
 
 ### Linting
 

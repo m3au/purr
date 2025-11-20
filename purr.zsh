@@ -1,21 +1,44 @@
+#!/usr/bin/env zsh
+# purr - ZSH plugin for seamless key management with 1Password, SSH, and GPG
+# shellcheck disable=SC1090
+
 # Configuration: 1Password vault and item names
 # These can be overridden via environment variables
 PURR_VAULT_NAME="${PURR_VAULT_NAME:-purr}"
 PURR_GPG_ITEM="${PURR_GPG_ITEM:-gpg}"
 PURR_GITHUB_ITEM="${PURR_GITHUB_ITEM:-GitHub}"
 
+# Configuration: SSH agent socket and GPG cache TTL
+# These can be overridden via environment variables
+PURR_SSH_AUTH_SOCK="${PURR_SSH_AUTH_SOCK:-$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock}"
+PURR_GPG_CACHE_TTL="${PURR_GPG_CACHE_TTL:-34560000}"
+
+# Load configuration file if it exists (~/.purrrc)
+# This allows users to override default settings
+if [ -f "$HOME/.purrrc" ]; then
+  # shellcheck source=/dev/null
+  source "$HOME/.purrrc"
+fi
+
+# Obfuscate sensitive key data for safe display
+# Arguments:
+#   $1: Input string to obfuscate
+# Returns: Obfuscated string (shows first 4 and last 4 characters)
+# Example: obfuscate_key "ghp_abcdefghijklmnopqrstuvwxyz1234567890"
 obfuscate_key() {
   local input=$1
   local visible_chars=4
   local str_length=${#input}
+  local middle_length
+  local stars
 
-  if [ $str_length -le $(($visible_chars * 2)) ]; then
+  if [ "$str_length" -le $((visible_chars * 2)) ]; then
     echo "$input"
   else
     local start=${input:0:$visible_chars}
     local end=${input: -$visible_chars}
-    local middle_length=$(($str_length - $visible_chars * 2))
-    local stars=$(printf '%*s' $middle_length | tr ' ' '*')
+    middle_length=$((str_length - visible_chars * 2))
+    stars=$(printf '%*s' "$middle_length" | tr ' ' '*')
     echo "${start}${stars}${end}"
   fi
 }
@@ -25,12 +48,19 @@ if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   exit 1
 fi
 
+# Load SSH keys from 1Password SSH agent
+# Connects to the 1Password SSH agent socket and verifies keys are available
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: 0 on success, 1 on failure
+# Environment: Sets SSH_AUTH_SOCK to 1Password SSH agent socket
+# Example: load_ssh_key true
 load_ssh_key() {
   local verbose=$1
   $verbose && echo "Loading SSH key..."
 
   # Set the SSH_AUTH_SOCK to the 1Password SSH agent socket
-  export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+  export SSH_AUTH_SOCK="$PURR_SSH_AUTH_SOCK"
 
   if [ -S "$SSH_AUTH_SOCK" ]; then
     $verbose && echo "Connected to 1Password SSH agent."
@@ -49,6 +79,13 @@ load_ssh_key() {
   fi
 }
 
+# Unload SSH keys by disconnecting from SSH agent
+# Clears SSH_AUTH_SOCK and SSH_AGENT_PID environment variables
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: Always returns 0
+# Environment: Unsets SSH_AUTH_SOCK and SSH_AGENT_PID
+# Example: unload_ssh_key true
 unload_ssh_key() {
   local verbose=$1
   if $verbose; then
@@ -63,13 +100,27 @@ unload_ssh_key() {
   fi
 }
 
+# Load GPG key from 1Password and configure Git signing
+# Retrieves GPG key data from 1Password, imports keys, configures GPG agent,
+# and sets up Git commit signing
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: 0 on success, 1 on failure
+# Environment:
+#   - Uses PURR_VAULT_NAME and PURR_GPG_ITEM for 1Password lookup
+#   - Creates temporary files for key import (cleaned up automatically)
+#   - Configures ~/.gnupg/gpg-agent.conf with cache TTL
+#   - Sets Git global config for GPG signing
+# Example: load_gpg_key true
 load_gpg_key() {
   local verbose=$1
   $verbose && echo "Starting GPG key loading process..."
   $verbose && echo "Retrieving GPG key information from 1Password..."
 
-  local gpg_key_id=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field key_id)
-  local password=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field password --reveal)
+  local gpg_key_id
+  local password
+  gpg_key_id=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field key_id)
+  password=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field password --reveal)
 
   if [ -z "$gpg_key_id" ] || [ -z "$password" ]; then
     $verbose && echo "Failed to retrieve key ID or password from 1Password."
@@ -77,8 +128,10 @@ load_gpg_key() {
   fi
 
   $verbose && echo "Retrieving public and private keys..."
-  local public_key=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field public_key)
-  local private_key=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field private_key)
+  local public_key
+  local private_key
+  public_key=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field public_key)
+  private_key=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field private_key)
 
   if [ -z "$public_key" ] || [ -z "$private_key" ]; then
     $verbose && echo "Failed to retrieve public or private key from 1Password."
@@ -86,8 +139,16 @@ load_gpg_key() {
   fi
 
   $verbose && echo "Creating temporary files for key import..."
-  local temp_public_key=$(mktemp)
-  local temp_private_key=$(mktemp)
+  local temp_public_key
+  local temp_private_key
+  temp_public_key=$(mktemp)
+  temp_private_key=$(mktemp)
+
+  # Cleanup function for temporary files
+  cleanup_temp_keys() {
+    rm -f "$temp_public_key" "$temp_private_key" 2>/dev/null
+  }
+  trap cleanup_temp_keys EXIT INT TERM
 
   $verbose && echo "Writing keys to temporary files..."
   echo "$public_key" | sed 's/^"//; s/"$//; s/\\n/\n/g' >"$temp_public_key"
@@ -109,11 +170,12 @@ load_gpg_key() {
 
   $verbose && echo "Cleaning up temporary files..."
   rm -f "$temp_public_key" "$temp_private_key"
+  trap - EXIT INT TERM
 
   $verbose && echo "Configuring GPG agent cache..."
   mkdir -p ~/.gnupg
-  echo "default-cache-ttl 34560000" >~/.gnupg/gpg-agent.conf
-  echo "max-cache-ttl 34560000" >>~/.gnupg/gpg-agent.conf
+  echo "default-cache-ttl $PURR_GPG_CACHE_TTL" >~/.gnupg/gpg-agent.conf
+  echo "max-cache-ttl $PURR_GPG_CACHE_TTL" >>~/.gnupg/gpg-agent.conf
 
   $verbose && echo "Restarting GPG agent..."
   gpgconf --kill gpg-agent
@@ -122,36 +184,48 @@ load_gpg_key() {
   $verbose && echo "Testing GPG key functionality..."
 
   $verbose && echo "Caching GPG passphrase in the agent..."
-  local agent_response=$(echo "RELOADAGENT" | gpg-connect-agent 2>&1)
+  local agent_response
+  agent_response=$(echo "RELOADAGENT" | gpg-connect-agent 2>&1)
   if [[ "$agent_response" != "OK" ]]; then
     $verbose && echo "GPG agent response: $agent_response"
   fi
 
   $verbose && echo "Creating temporary file for passphrase test..."
+  local passphrase_file
   passphrase_file=$(mktemp)
   echo -n "$password" >"$passphrase_file"
 
   $verbose && echo "Testing signing capability..."
+  local temp_file
   temp_file=$(mktemp)
   echo "test" >"$temp_file"
+
+  # Cleanup function for test files
+  cleanup_test_files() {
+    rm -f "$temp_file" "$temp_file.gpg" "${temp_file}.error" "$passphrase_file" 2>/dev/null
+  }
+  trap cleanup_test_files EXIT INT TERM
+
   if gpg --batch --yes --passphrase-file "$passphrase_file" --pinentry-mode loopback -u "$gpg_key_id" -s "$temp_file" 2>"${temp_file}.error"; then
     $verbose && echo "Successfully signed test file. Passphrase cached."
     rm -f "$temp_file" "$temp_file.gpg" "${temp_file}.error" "$passphrase_file"
+    trap - EXIT INT TERM
   else
     $verbose && echo "Failed to sign test file. Error output:"
     cat "${temp_file}.error"
     rm -f "$temp_file" "${temp_file}.error" "$passphrase_file"
+    trap - EXIT INT TERM
     return 1
   fi
 
   $verbose && echo "Configuring Git GPG signing..."
   git config --global user.signingkey "$gpg_key_id"
   git config --global commit.gpgsign true
-  git config --global gpg.program $(which gpg)
+  git config --global gpg.program "$(command -v gpg)"
 
   $verbose && echo "Verifying Git GPG configuration..."
   $verbose && echo "Git GPG signing configured with key: $gpg_key_id"
-  $verbose && echo "GPG program path: $(which gpg)"
+  $verbose && echo "GPG program path: $(command -v gpg)"
   $verbose && echo "Git config:"
   $verbose && git config --global --list | grep gpg
 
@@ -167,8 +241,15 @@ load_gpg_key() {
   return 0
 }
 
+# Unload GPG keys by removing from keyring and clearing agent cache
+# Deletes secret keys from GPG keyring and stops GPG agent
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: Always returns 0
+# Example: unload_gpg_key true
 unload_gpg_key() {
   local verbose=$1
+  local fingerprint
   if $verbose; then
     echo "Removing GPG key..."
   fi
@@ -191,13 +272,21 @@ unload_gpg_key() {
   $verbose && echo "GPG agent cache cleared and agent stopped."
 }
 
+# Check status of SSH and GPG keys
+# Displays comprehensive status information about SSH keys, GPG keys,
+# Git signing configuration, and GitHub token status
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: Always returns 0
+# Example: check_keys false
 check_keys() {
   local verbose=$1
   $verbose && echo "Starting key status check..."
 
   echo "Checking for SSH keys:"
   if [ -d ~/.ssh ]; then
-    local ssh_keys=$(ls -1 ~/.ssh/*.pub 2>/dev/null | sed 's/\.pub$//')
+    local ssh_keys
+    ssh_keys=$(find ~/.ssh -maxdepth 1 -name "*.pub" 2>/dev/null | sed 's/\.pub$//')
     if [ -n "$ssh_keys" ]; then
       echo "SSH keys found:"
       echo "$ssh_keys" | sed 's/^/  /'
@@ -227,7 +316,8 @@ check_keys() {
 
   echo -e "\nChecking loaded GPG keys:"
   if gpg-agent --quiet 2>/dev/null; then
-    local loaded_keys=$(gpg --list-secret-keys --with-keygrip 2>/dev/null | awk '/Keygrip/ {print "  " $3}')
+    local loaded_keys
+    loaded_keys=$(gpg --list-secret-keys --with-keygrip 2>/dev/null | awk '/Keygrip/ {print "  " $3}')
     if [ -n "$loaded_keys" ]; then
       echo "GPG agent is running. Loaded keys:"
       echo "$loaded_keys"
@@ -298,30 +388,49 @@ check_keys() {
   fi
 }
 
+# Enable Git GPG commit signing
+# Configures Git global settings for GPG commit signing using key from 1Password
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: 0 on success, 1 on failure
+# Environment:
+#   - Uses PURR_VAULT_NAME and PURR_GPG_ITEM for 1Password lookup
+#   - Sets git config --global user.signingkey
+#   - Sets git config --global commit.gpgsign true
+#   - Sets git config --global gpg.program
+# Example: enable_git_signing true
 enable_git_signing() {
   local verbose=$1
   $verbose && echo "Starting Git GPG signing configuration..."
   $verbose && echo "Retrieving GPG key ID from 1Password..."
 
-  local gpg_key_id=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field key_id)
+  local gpg_key_id
+  gpg_key_id=$(op item get "$PURR_GPG_ITEM" --vault "$PURR_VAULT_NAME" --field key_id)
 
   if [ -z "$gpg_key_id" ]; then
     $verbose && echo "No GPG key ID found in 1Password. Make sure a GPG key is loaded."
     return 1
   fi
 
-  git config --global user.signingkey $gpg_key_id
+  git config --global user.signingkey "$gpg_key_id"
   git config --global commit.gpgsign true
-  git config --global gpg.program $(which gpg)
+  git config --global gpg.program "$(command -v gpg)"
 
   $verbose && echo "Git GPG signing enabled with key: $gpg_key_id"
-  $verbose && echo "GPG program path: $(which gpg)"
+  $verbose && echo "GPG program path: $(command -v gpg)"
   $verbose && echo "Git config:"
   $verbose && git config --global --list | grep gpg
 
   return 0
 }
 
+# Disable Git GPG commit signing
+# Removes Git global GPG signing configuration
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: Always returns 0
+# Environment: Unsets git config --global user.signingkey and commit.gpgsign
+# Example: disable_git_signing true
 disable_git_signing() {
   local verbose=$1
   $verbose && echo "Disabling Git GPG signing..."
@@ -333,6 +442,12 @@ disable_git_signing() {
   return 0
 }
 
+# Check for existing key configuration
+# Detects if SSH agent, GPG keys, or Git signing are already configured
+# Arguments: None
+# Returns: Always returns 0
+# Output: Prints status details about existing configuration
+# Example: check_existing_setup
 check_existing_setup() {
   local has_existing=false
   local details=""
@@ -368,6 +483,12 @@ check_existing_setup() {
   return 0
 }
 
+# Check 1Password status and authenticate if needed
+# Verifies 1Password desktop app is running, launches if needed, and authenticates CLI
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: 0 on success, 1 on failure
+# Example: check_1password true
 check_1password() {
   local verbose=$1
   $verbose && echo "Checking 1Password status..."
@@ -411,6 +532,20 @@ check_1password() {
   return 0
 }
 
+# Main purr command function
+# Provides key management commands: load keys, check status, or lock/unload keys
+# Commands:
+#   (none) - Load SSH and GPG keys, configure Git signing and GitHub credentials
+#   check  - Display status of SSH and GPG keys
+#   lock   - Unload all keys and lock 1Password
+# Options:
+#   -v    - Verbose mode (enable verbose output)
+#   -h    - Show help message
+# Returns: 0 on success, 1 on failure
+# Example: purr          # Load keys
+# Example: purr check    # Check status
+# Example: purr lock     # Unload keys
+# Example: purr -v       # Load keys with verbose output
 purr() {
   local verbose=false
   local success=true
@@ -506,13 +641,15 @@ purr() {
     setup_github_credentials $verbose
 
     echo -e "\nCredentials loaded:" | lolcat -a
-    local github_user=$(git config --global user.name)
+    local github_user
+    github_user=$(git config --global user.name)
     echo "GitHub: $github_user" | lolcat -a
     if [ -n "$GITHUB_TOKEN" ]; then
       echo "GitHub Token: $(obfuscate_key "$GITHUB_TOKEN")" | lolcat -a
     fi
     echo "Git signing: Enabled" | lolcat -a
-    local gpg_key=$(git config --global user.signingkey)
+    local gpg_key
+    gpg_key=$(git config --global user.signingkey)
     echo "GPG: $(obfuscate_key "$gpg_key")" | lolcat -a
     echo "SSH: Connected" | lolcat -a
     echo "ᓚᘏᗢ purr" | lolcat -a
@@ -526,6 +663,14 @@ purr() {
   esac
 }
 
+# Check GPG key status and display details
+# Verifies GPG key exists and displays obfuscated key details
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+#   $2: GPG key ID to check
+# Returns: Always returns 0
+# Output: Displays obfuscated key information
+# Example: check_gpg_key true "ABC123DEF456"
 check_gpg_key() {
   local verbose=$1
   local gpg_key_id=$2
@@ -580,6 +725,14 @@ check_gpg_key() {
   done
 }
 
+# Reimport GPG secret key (helper function)
+# Exports and reimports a GPG secret key, useful for troubleshooting
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+#   $2: GPG key ID to reimport
+#   $3: Key passphrase
+# Returns: 0 on success, 1 on failure
+# Example: reimport_secret_key true "ABC123DEF456" "passphrase"
 reimport_secret_key() {
   local verbose=$1
   local gpg_key_id=$2
@@ -588,13 +741,15 @@ reimport_secret_key() {
   $verbose && echo "Starting secret key reimport process..."
   $verbose && echo "Attempting to export existing secret key..."
 
-  local export_output=$(gpg --batch --yes --passphrase "$password" --export-secret-keys "$gpg_key_id" 2>&1)
+  local export_output
+  export_output=$(gpg --batch --yes --passphrase "$password" --export-secret-keys "$gpg_key_id" 2>&1)
   if [ $? -ne 0 ]; then
     $verbose && echo "Failed to export secret key: $export_output"
     return 1
   fi
 
-  local import_output=$(echo "$export_output" | gpg --batch --yes --passphrase "$password" --import 2>&1)
+  local import_output
+  import_output=$(echo "$export_output" | gpg --batch --yes --passphrase "$password" --import 2>&1)
   $verbose && echo "Reimport output: $import_output"
 
   if echo "$import_output" | grep -q "secret key imported"; then
@@ -606,6 +761,19 @@ reimport_secret_key() {
   fi
 }
 
+# Setup GitHub credentials from 1Password
+# Retrieves GitHub username, email, and personal access token from 1Password,
+# configures Git user settings, stores credentials in macOS keychain, and exports
+# GITHUB_TOKEN environment variable. Also updates Cursor MCP configuration.
+# Arguments:
+#   $1: Verbose flag (true/false) - controls output verbosity
+# Returns: 0 on success, 1 on failure (returns 0 if GitHub item doesn't exist - optional)
+# Environment:
+#   - Uses PURR_VAULT_NAME and PURR_GITHUB_ITEM for 1Password lookup
+#   - Sets git config --global user.name and user.email
+#   - Exports GITHUB_TOKEN environment variable
+#   - Creates/updates ~/.cursor/mcp.json with GitHub token
+# Example: setup_github_credentials true
 setup_github_credentials() {
   local verbose=$1
   $verbose && echo "Setting up GitHub credentials..."
@@ -687,6 +855,7 @@ setup_github_credentials() {
   $verbose && echo "Updating ~/.cursor/mcp.json with GitHub token..."
 
   # Escape special characters in the token for JSON
+  local escaped_token
   escaped_token=$(printf '%s' "$github_pat" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
   # Create mcp.json with the actual token value

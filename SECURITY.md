@@ -63,13 +63,29 @@ When using purr, please follow these security best practices:
 
 ## Known Security Considerations
 
-1. **Temporary Files**: GPG keys are temporarily written to disk during import. These files are deleted immediately after use, but this is a potential security risk if the system is compromised during execution.
+1. **Temporary Files**: GPG keys are temporarily written to disk during import. These files are deleted immediately after use and cleanup is guaranteed via trap handlers even on error. However, this is still a potential security risk if the system is compromised during execution. Temporary files are created in the system temporary directory using `mktemp`, which provides secure file permissions (0600) by default.
 
-2. **Environment Variables**: The `GITHUB_TOKEN` is stored as an environment variable and may be visible in process lists.
+   - All temporary files are cleaned up with `rm -f` after use
+   - Trap handlers ensure cleanup on EXIT, INT, and TERM signals
+   - Passphrase files used for GPG testing are also cleaned up
+
+2. **Environment Variables**: The `GITHUB_TOKEN` is stored as an environment variable and may be visible in process lists. This variable is automatically unset when running `purr lock`. 
+
+   - Consider the security implications of environment variables in process lists
+   - Environment variables are cleared when locking keys via `purr lock`
 
 3. **1Password CLI**: This script relies on 1Password CLI authentication. Ensure you follow 1Password's security best practices.
 
-4. **GPG Agent Cache**: The script configures a long GPG agent cache TTL (34560000 seconds = ~400 days). This means passphrases remain cached for an extended period.
+   - Keep 1Password CLI updated to the latest version
+   - Use biometric authentication when available
+   - Lock 1Password when not in use
+
+4. **GPG Agent Cache**: The script configures a long GPG agent cache TTL (default: 34560000 seconds = ~400 days). This means passphrases remain cached for an extended period. You can configure a shorter TTL via the `PURR_GPG_CACHE_TTL` environment variable.
+
+   - Default TTL is very long to avoid repeated passphrase prompts
+   - Consider setting a shorter TTL for enhanced security
+   - Configure via: `export PURR_GPG_CACHE_TTL=3600` (1 hour)
+   - The cache is cleared when running `purr lock`
 
 ## Responsible Disclosure
 

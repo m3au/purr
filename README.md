@@ -2,7 +2,7 @@
 
 ![purr](https://github.com/m3au/store/blob/main/docs/purr.png)
 
-[![License](https://img.shields.io/github/license/m3au/purr)](LICENSE) [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![ZSH Plugin](https://img.shields.io/badge/ZSH-Plugin-blue)](https://github.com/unixorn/awesome-zsh-plugins) [![macOS](https://img.shields.io/badge/macOS-supported-success)](https://github.com/m3au/purr#prerequisites) [![1Password](https://img.shields.io/badge/1Password-integrated-blue)](https://1password.com/) [![GPG](https://img.shields.io/badge/GPG-enabled-brightgreen)](https://gnupg.org/) [![SSH](https://img.shields.io/badge/SSH-supported-yellow)](https://www.ssh.com/)
+[![CI](https://github.com/m3au/purr/workflows/CI/badge.svg)](https://github.com/m3au/purr/actions) [![License](https://img.shields.io/github/license/m3au/purr)](LICENSE) [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![ZSH Plugin](https://img.shields.io/badge/ZSH-Plugin-blue)](https://github.com/unixorn/awesome-zsh-plugins) [![macOS](https://img.shields.io/badge/macOS-supported-success)](https://github.com/m3au/purr#prerequisites) [![1Password](https://img.shields.io/badge/1Password-integrated-blue)](https://1password.com/) [![GPG](https://img.shields.io/badge/GPG-enabled-brightgreen)](https://gnupg.org/) [![SSH](https://img.shields.io/badge/SSH-supported-yellow)](https://www.ssh.com/)
 
 A ZSH plugin for seamless key management that integrates 1Password, SSH, and GPG. Securely loads and unloads keys, configures Git signing, and manages GitHub credentials - all with a simple purr command.
 
@@ -203,9 +203,30 @@ Additional commands available:
 
 ## 🧪 Testing
 
+### Running Tests
+
+Tests are written using [bats](https://github.com/bats-core/bats-core) (Bash Automated Testing System).
+
+**Prerequisites:**
+```bash
+brew install bats-core
+```
+
+**Run tests:**
 ```bash
 bun test
+# or directly with bats
+bats tests/*.bats
 ```
+
+### Test Structure
+
+- `tests/test_helper.bats` - Common test setup and teardown
+- `tests/purr.bats` - Main test suite for purr functions
+
+### Writing Tests
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on writing tests.
 
 ## 📄 License
 
