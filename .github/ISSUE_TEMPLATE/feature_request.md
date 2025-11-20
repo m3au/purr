@@ -1,44 +1,39 @@
 ---
 name: Feature Request
 about: Suggest an idea for this project
-title: "[FEATURE] "
+title: '[FEATURE] '
 labels: enhancement
-assignees: ""
+assignees: ''
 ---
 
-## Feature Description
-
+## Description
 A clear and concise description of the feature you'd like to see.
 
 ## Problem Statement
-
 What problem does this feature solve? What use case does it address?
 
 ## Proposed Solution
-
 Describe how you envision this feature working.
 
 ## Alternatives Considered
-
-Have you considered any alternative solutions or features?
+Describe any alternative solutions or features you've considered.
 
 ## Use Cases
-
 Provide specific examples of how this feature would be used:
 
-1. ...
-2. ...
+1. **Use Case 1**: ...
+2. **Use Case 2**: ...
+
+## Implementation Ideas
+If you have thoughts on how this could be implemented, please share:
+
+```bash
+# Example command or usage
+purr new-feature
+```
 
 ## Additional Context
-
 Add any other context, mockups, or examples about the feature request here.
 
-## Implementation Notes (Optional)
-
-If you have ideas about how this could be implemented, feel free to share them.
-
-## Checklist
-
-- [ ] This feature doesn't duplicate existing functionality
-- [ ] I've checked if this feature is already in the roadmap
-- [ ] I'm willing to help implement this feature if needed
+## Related Issues
+Link to any related issues or discussions.

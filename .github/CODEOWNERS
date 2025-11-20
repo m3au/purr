@@ -1,0 +1,17 @@
+# Default owner for everything
+* @m3au
+
+# Documentation
+/docs/ @m3au
+*.md @m3au
+
+# Tests
+/tests/ @m3au
+
+# Configuration files
+.github/ @m3au
+package.json @m3au
+
+# Main script
+purr.zsh @m3au
+

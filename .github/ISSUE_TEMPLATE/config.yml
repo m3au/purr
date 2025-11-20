@@ -1,9 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Question or Discussion
-    url: https://github.com/m3au/purr/discussions
-    about: Ask questions or start a discussion
-  - name: Security Issue
-    url: https://github.com/m3au/purr/security/advisories/new
-    about: Report a security vulnerability
-
+  - name: Security Vulnerability
+    url: mailto:m3au@pm.me
+    about: Please report security vulnerabilities privately via email. See SECURITY.md for details.
