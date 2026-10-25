@@ -4,18 +4,17 @@
 
 [![CI](https://github.com/m3au/purr/workflows/CI/badge.svg)](https://github.com/m3au/purr/actions) [![License](https://img.shields.io/github/license/m3au/purr)](LICENSE) [![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![ZSH Plugin](https://img.shields.io/badge/ZSH-Plugin-blue)](https://github.com/unixorn/awesome-zsh-plugins) [![macOS](https://img.shields.io/badge/macOS-supported-success)](https://github.com/m3au/purr#prerequisites) [![1Password](https://img.shields.io/badge/1Password-integrated-blue)](https://1password.com/) [![GPG](https://img.shields.io/badge/GPG-enabled-brightgreen)](https://gnupg.org/) [![SSH](https://img.shields.io/badge/SSH-supported-yellow)](https://www.ssh.com/)
 
-**purr** is a ZSH plugin that transforms key management from a tedious multi-step process into a single, elegant command. Seamlessly integrate 1Password, SSH, and GPG to securely load keys, configure Git signing, and manage GitHub credentials - all while keeping your workflow fast and secure.
+**purr** is a ZSH plugin that sets up 1Password SSH, GPG, and Git signing once on a machine. Run `purr` for that setup. Run `purr check` later to see whether SSH, GPG, Git signing, and GitHub are healthy, without calling 1Password for checks that can be done locally.
 
 ## 🚀 Features
 
-- 🔐 **1Password Integration** - Store all keys securely in 1Password, no more scattered key files
-- 🔑 **Automated SSH Management** - Connect to 1Password SSH agent with a single command
-- 📝 **GPG & Git Signing** - Automatic GPG key import and Git commit signing configuration
-- 🔄 **GitHub Credentials** - Configure Git user, email, and tokens from 1Password
-- 🔒 **Secure Lock** - Unload all keys and lock 1Password when done (including mcp.json cleanup)
-- 🔍 **Status Checking** - Verify key status, Git signing, and GitHub token configuration
-- 🎯 **Cursor MCP Ready** - Automatically configures GitHub tokens for Cursor MCP servers
-- ⚡ **Lightning Fast** - Get from zero to productive in seconds, not minutes
+- 🔐 **1Password only when something is missing** - Each item is read once as JSON, then reused
+- 🔑 **Persistent SSH** - Writes the 1Password `IdentityAgent` into `~/.ssh/config` when it is absent
+- 📝 **GPG & Git signing** - Imports a secret key only if it is not already on the keyring, then sets `user.signingkey`, `commit.gpgsign`, and `gpg.program`
+- 🔄 **GitHub via `gh` first** - Uses `gh auth token` when the GitHub CLI is authenticated, and 1Password only as a fallback
+- 🎯 **Cursor MCP** - Updates the GitHub server in `~/.cursor/mcp.json` and leaves other servers in place
+- 🔍 **`purr check`** - Local health check of the SSH agent, GPG key, Git signing, and GitHub auth, plus a test signature that will not prompt
+- 🔒 **`purr lock`** - Removes the signing key, clears Git signing, and signs out of the 1Password CLI
 
 ## 👥 Who is this for?
 
@@ -23,15 +22,15 @@ purr is designed for developers and teams who want a unified, automated solution
 
 - **1Password Users**: Developers already using 1Password for credential management who want to leverage it for SSH/GPG keys
 - **Security-Conscious Teams**: Organizations requiring Git commit signing and secure key management practices
-- **Daily Developers**: Developers who want a single command to load all keys and configure their development environment
+- **Daily Developers**: Developers who want setup to stick on the machine, and a quick `purr check` when something looks wrong
 - **Team Leads**: Those setting up standardized development environments across team members
 - **DevOps Engineers**: Professionals managing multiple machines who need consistent key management workflows
 - **macOS Users**: Developers on macOS who need seamless integration with system tools and 1Password
 
 ### Use Cases
 
-- **Daily Development Workflow**: Load all keys at the start of your day with a single `purr` command
-- **New Machine Setup**: Quickly configure a new development machine with all necessary keys and Git signing
+- **New machine setup**: Configure SSH, GPG, and Git signing once with `purr`
+- **Health check**: Run `purr check` when a commit will not sign or SSH stops offering keys
 - **Team Onboarding**: Provide consistent setup instructions for new team members
 - **Secure Key Rotation**: Easily rotate keys stored in 1Password without manual configuration
 - **Temporary Development Environments**: Load keys when needed, lock them when done
@@ -86,6 +85,16 @@ purr is designed for developers and teams who want a unified, automated solution
 
    ```zsh
    source ~/.zsh/purr/purr.zsh
+   ```
+
+   Or lazy-load it, which is what the script expects if `purr` is defined as a wrapper that sources this file and then calls `purr`:
+
+   ```zsh
+   purr() {
+     unfunction purr
+     source ~/.zsh/purr/purr.zsh
+     purr "$@"
+   }
    ```
 
 3. Reload your shell:
@@ -188,40 +197,58 @@ Create a vault (default: `purr`) with GPG and GitHub items. See the [detailed se
 ### 3. Start using purr
 
 ```bash
-purr        # Load all keys and configure Git signing
-purr check  # Verify everything is working
-purr lock   # Securely unload keys when done
+purr        # One-time setup. Safe to run again; finished steps are skipped
+purr check  # Local health check. Does not call 1Password
+purr lock   # Remove the GPG signing key and sign out of the 1Password CLI
 ```
 
-**That's it!** Your SSH keys, GPG keys, Git signing, and GitHub credentials are all configured and ready to go. 🎉
+On a machine that is already configured, `purr` finishes without a 1Password prompt when `gh` is authenticated, or when git's user name and email are set and `~/.cursor/mcp.json` already has the GitHub token.
 
 ## 🔑 Usage
 
 ### Implemented Commands
 
-- `purr` - Loads keys and configures Git signing
-- `purr lock` - Unloads keys and locks 1Password
-- `purr check` - Checks key status
-- `purr -v` - Verbose mode for any command
+- `purr` or `purr setup` - Idempotent setup for this machine
+- `purr check` - Local health check (exit 1 when SSH, GPG, or Git signing is not ready)
+- `purr lock` - Remove the GPG signing key, clear Git signing, and sign out of the 1Password CLI
+- `purr -v` - Verbose mode, including how many 1Password item reads the command made
 - `purr -h` - Shows help message
 
 ### Common Workflows
 
-#### Daily Development Workflow
+#### New machine, then leave it alone
 
 ```bash
-# Morning: Load all keys
+# Once: write SSH config, import GPG if needed, set Git signing, configure GitHub
 purr
 
-# Verify everything is working
+# Later, in any shell: confirm the persistent setup still works
 purr check
 
-# Make commits (automatically signed)
+# Commits are signed from the local keyring. New shells do not need `purr`.
 git commit -m "Your commit message"
-
-# End of day: Lock everything
-purr lock
 ```
+
+`purr check` reports each step as `ok`, `warn`, or `fail`. Warnings (for example a GPG passphrase that is not cached, or GitHub auth that is not configured) still exit 0. A failed SSH agent, missing secret key, or incomplete Git signing config exits 1.
+
+```bash
+purr check
+```
+
+```text
+purr check
+  SSH config       ok    IdentityAgent points at the 1Password socket
+  SSH agent        ok    2 identities
+  GPG key          ok    ABCD********WXYZ is in the secret keyring
+  Git signing      ok    gpgsign=true program=/opt/homebrew/bin/gpg
+  GPG cache        ok    TTL 34560000
+  Test signature   ok    signed a throwaway string without prompting
+  GitHub           ok    authenticated via gh
+
+All checks passed.
+```
+
+The test signature uses `--pinentry-mode cancel`. If the passphrase is not cached, the check says so and does not open a passphrase prompt.
 
 #### Setting Up a New Machine
 
@@ -233,7 +260,7 @@ echo "source ~/.zsh/purr/purr.zsh" >> ~/.zshrc
 # Configure 1Password vault with GPG and GitHub items
 # (see docs/setup.md for details)
 
-# Load keys
+# Set up this machine
 purr
 
 # Verify setup
@@ -252,84 +279,67 @@ purr -v
 
 ### Examples
 
-#### Example 1: Basic Usage
+#### Example 1: First setup
 
 ```bash
-# Load all keys and configure Git signing
 $ purr
-ᓚᘏᗢ purr initializing...
-✅ 1Password is running and authenticated
-Connected to 1Password SSH agent.
-GPG key loaded successfully and Git configured for signing.
+ᓚᘏᗢ purr setup
+  SSH config       set   added IdentityAgent to ~/.ssh/config
+  SSH agent        ok    2 identities
+  GPG cache        set   set cache TTL to 34560000
+  GPG key          set   imported secret key ABCD********WXYZ from 1Password
+  Git signing      set   signing key ABCD********WXYZ, gpg.program /opt/homebrew/bin/gpg
+  GitHub           ok    token from gh; git user your-name
+  Cursor MCP       set   updated the github server in ~/.cursor/mcp.json
 
-Credentials loaded:
-GitHub: your-username
-GitHub Token: ghp_****...****7890
-Git signing: Enabled
-GPG: ABC1****...****2345
-SSH: Connected
 ᓚᘏᗢ purr
 ```
 
-#### Example 2: Checking Status
+Run `purr` again on that machine and the same steps report `ok` without contacting 1Password.
 
-```bash
-$ purr check
-Checking for SSH keys:
-  SSH keys found:
-    ~/.ssh/id_rsa
-    ~/.ssh/id_ed25519
+#### Example 2: A 1Password failure names the step
 
-Checking SSH agent connection:
-  Connected to SSH agent at ~/Library/Group Containers/.../agent.sock
-  Loaded keys: 3
-
-Checking for GPG keys:
-  GPG keys found:
-    Key ID: ABC123DEF456
-    Name: Your Name <your@email.com>
-
-Checking Git GPG signing status:
-  Git GPG signing is enabled.
-    Signing key: ABC123DEF456
-
-Checking GitHub token status:
-  GITHUB_TOKEN environment variable: Set (ghp_****...****7890)
+```text
+Failed: GPG key - could not read 1Password item 'gpg' in vault 'purr': 1Password CLI couldn't connect to the 1Password desktop app
+Setup incomplete.
 ```
 
-#### Example 3: Locking Keys
+purr reads the GPG item once (`op item get --format json --reveal`) and retries that read once if the desktop app connection fails. It does not call `op` again for `key_id`, `password`, `public_key`, and `private_key`.
+
+#### Example 3: Locking keys
 
 ```bash
 $ purr lock
+  1Password        ok    signed out of the CLI
+  SSH agent        ok    unset SSH_AUTH_SOCK; IdentityAgent in ~/.ssh/config kept
+  GPG key          set   removed secret key ABCD********WXYZ
+  Git signing      ok    cleared user.signingkey and commit.gpgsign
+  GitHub           set   removed the GitHub server from ~/.cursor/mcp.json
 System locked
 ᓚᘏᗢ hiss
-
-# Verify keys are unloaded
-$ purr check
-Checking SSH agent connection:
-  Not connected to any SSH agent.
-
-Checking for GPG keys:
-  No GPG keys found on this system.
 ```
+
+The `IdentityAgent` line stays in `~/.ssh/config`. The next `purr` imports the GPG key from 1Password again because `purr lock` removed it from the keyring. Other MCP servers in `~/.cursor/mcp.json` are kept. If the GitHub server was the only entry, the file is removed. An invalid `mcp.json` is left untouched.
 
 ### GitHub Token Management
 
-When running `purr`, the GitHub Personal Access Token is:
+`purr` resolves a GitHub token in this order:
 
-- Exported as `GITHUB_TOKEN` environment variable
-- Unset when running `purr lock`
-- Shown in obfuscated format (first 4 and last 4 chars visible)
+1. `gh auth token`, when the GitHub CLI is installed and authenticated
+2. `GITHUB_TOKEN` already exported in this shell
+3. The token already stored on the `github` server in `~/.cursor/mcp.json`
+4. One 1Password read of the GitHub item (`PURR_GITHUB_ITEM` in `PURR_VAULT_NAME`)
+
+Git `user.name` and `user.email` are filled only when they are empty. A token from 1Password is also stored with `git credential-osxkeychain` when that helper exists. `purr lock` unsets `GITHUB_TOKEN`.
 
 ### Current Implementation
 
-The default `purr` command already handles:
+The default `purr` command:
 
-- ✅ 1Password integration (authentication and credential retrieval)
-- ✅ SSH key management (loads from 1Password SSH agent)
-- ✅ GPG key management (imports and configures Git signing)
-- ✅ GitHub credentials (configures Git user, email, and stores token in keychain)
-- ✅ Git signing (enables GPG commit signing)
+- Detects an existing `IdentityAgent`, GPG secret key, Git signing config, and GPG agent cache TTL
+- Contacts 1Password only for a missing GPG key or a missing GitHub token
+- Reads each 1Password item once and reuses the JSON
+- Prefers `gh auth token` over the GitHub item in 1Password
 
 Additional commands available:
 
@@ -401,7 +411,7 @@ For security-related issues, please see [SECURITY.md](SECURITY.md).
 **Important Security Notes:**
 
 - Never share your 1Password vault items or GPG keys
-- Always run `purr lock` when finished to unload keys
+- Run `purr lock` when you want the GPG secret key removed and the 1Password CLI signed out. SSH keeps using the agent socket named in `~/.ssh/config` while 1Password is unlocked
 - Review the script before sourcing it in your shell
 - The script automatically obfuscates sensitive data in output
 
@@ -428,9 +438,10 @@ If GPG keys aren't loading:
 
 If SSH keys aren't available:
 
-1. Ensure 1Password is running and SSH agent is enabled
+1. Ensure 1Password is running and the SSH agent is enabled
 2. Check that SSH keys are added to 1Password
-3. Verify the SSH agent socket path (default: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`)
+3. Confirm `~/.ssh/config` has an `IdentityAgent` pointing at the 1Password socket. `purr` adds one when it is missing and leaves a different `IdentityAgent` alone
+4. Verify the socket path (default: `~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`), or run `purr check`
 
 ### GitHub Credentials Issues
 

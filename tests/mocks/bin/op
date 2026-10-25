@@ -1,0 +1,46 @@
+#!/bin/sh
+# Unit-test 1Password CLI. Logs every invocation and serves JSON fixtures.
+: "${TEST_TMPDIR:?}"
+printf '%s\n' "$*" >> "$TEST_TMPDIR/op-args.log"
+
+if [ "$1" = "signout" ]; then
+  exit 0
+fi
+if [ "$1" = "account" ]; then
+  printf '%s\n' '{"email":"test@example.com"}'
+  exit 0
+fi
+if [ "$1" = "signin" ]; then
+  printf '%s\n' 'export OP_SESSION_test="mock-session-token"'
+  exit 0
+fi
+
+item=""
+prev=""
+for arg in "$@"; do
+  if [ "$prev" = "get" ]; then
+    item=$arg
+  fi
+  prev=$arg
+done
+
+if [ "$1" = "item" ] && [ "$2" = "get" ]; then
+  if [ -f "$TEST_TMPDIR/op-fail" ]; then
+    cat "$TEST_TMPDIR/op-fail" >&2
+    exit 1
+  fi
+  fixture=""
+  case "$item" in
+    test-gpg | gpg) fixture="$TEST_TMPDIR/fixtures/gpg.json" ;;
+    test-github | GitHub) fixture="$TEST_TMPDIR/fixtures/github.json" ;;
+  esac
+  if [ -n "$fixture" ] && [ -f "$fixture" ]; then
+    cat "$fixture"
+    exit 0
+  fi
+  printf '[ERROR] "%s" isn'"'"'t an item in the vault.\n' "$item" >&2
+  exit 1
+fi
+
+printf 'unexpected op invocation: %s\n' "$*" >&2
+exit 1
