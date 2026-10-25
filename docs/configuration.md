@@ -31,7 +31,7 @@ All configuration is done via environment variables. You can set these in your `
 #### `PURR_SSH_AUTH_SOCK`
 
 - **Default**: `$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock`
-- **Description**: Path to the 1Password SSH agent socket
+- **Description**: Path to the 1Password SSH agent socket. `purr` writes this into `~/.ssh/config` as `IdentityAgent` when that file does not already set one. Paths under `$HOME` are stored with `~` so OpenSSH expands them. A different existing `IdentityAgent` is left unchanged. The shell that ran `purr` also exports `SSH_AUTH_SOCK`; new shells use the config file and do not need the variable.
 - **Example**: `export PURR_SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"`
 
 ### GPG Configuration

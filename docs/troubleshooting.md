@@ -4,6 +4,23 @@ Common issues and solutions when using purr.
 
 ## 1Password Issues
 
+### "Failed: GPG key - ... couldn't connect to the 1Password desktop app"
+
+**Symptoms:**
+
+- Setup prints `Failed: <step> - ... couldn't connect to the 1Password desktop app`
+- Earlier 1Password calls in the same run may have succeeded
+
+**What purr does:**
+
+Each item is read once (`op item get --format json --reveal`). If that connection fails, purr retries it once. The message names the step (`GPG key`, `GitHub`, and so on) and includes the `op` error.
+
+**Solutions:**
+
+1. Confirm the 1Password app is unlocked
+2. Enable Settings → Developer → Integrate with 1Password CLI
+3. Run `purr` again. Completed steps are skipped, so only the failed item is read
+
 ### "Failed to authenticate with 1Password CLI"
 
 **Symptoms:**
@@ -128,28 +145,24 @@ Common issues and solutions when using purr.
    purr
    ```
 
-### "GPG passphrase is not cached in the agent"
+### "Test signature skipped" or "GPG passphrase is not cached"
 
 **Symptoms:**
 
-- Frequent passphrase prompts
-- GPG agent not caching passphrase
+- `purr check` prints `Test signature warn skipped; passphrase is not cached and signing would prompt`
+- Git asks for the GPG passphrase
 
 **Solutions:**
 
-1. Check GPG agent configuration:
+1. Check GPG agent configuration. purr sets `default-cache-ttl` and `max-cache-ttl` to `PURR_GPG_CACHE_TTL` and keeps other lines in `~/.gnupg/gpg-agent.conf`:
    ```bash
    cat ~/.gnupg/gpg-agent.conf
    ```
-2. Restart GPG agent:
-   ```bash
-   gpgconf --kill gpg-agent
-   gpg-agent --daemon
-   ```
-3. Try signing something to cache the passphrase:
+2. Sign once so the agent can cache the passphrase. `purr check` will not prompt for you:
    ```bash
    echo "test" | gpg --clearsign
    ```
+3. Run `purr check` again. A cached passphrase reports `Test signature ok`.
 
 ## GitHub Issues
 

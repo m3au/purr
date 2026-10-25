@@ -1,0 +1,109 @@
+#!/bin/sh
+# Stateful gpg mock. Secret key ids live in $TEST_TMPDIR/gpg-keys.
+: "${TEST_TMPDIR:?}"
+keys="$TEST_TMPDIR/gpg-keys"
+touch "$keys"
+printf '%s\n' "$*" >> "$TEST_TMPDIR/gpg.log"
+
+mode=""
+colon=0
+pinentry=""
+delete_target=""
+prev=""
+for arg in "$@"; do
+  case "$arg" in
+    --import) mode=import ;;
+    --delete-secret-keys) mode=delete ;;
+    --clearsign | --sign) mode=sign ;;
+    --list-secret-keys | --list-keys) mode=list ;;
+    --with-colons) colon=1 ;;
+    --pinentry-mode) prev=pinentry ;;
+    *)
+      if [ "$prev" = "pinentry" ]; then
+        pinentry=$arg
+        prev=""
+      elif [ "$mode" = "delete" ] && [ -z "$delete_target" ]; then
+        case "$arg" in
+          --*) ;;
+          *) delete_target=$arg ;;
+        esac
+      else
+        prev=""
+      fi
+      ;;
+  esac
+done
+
+list_key=""
+if [ "$mode" = "list" ]; then
+  for arg in "$@"; do
+    case "$arg" in
+      --*) ;;
+      *) list_key=$arg ;;
+    esac
+  done
+fi
+
+has_key() {
+  grep -qx "$1" "$keys" 2>/dev/null
+}
+
+case "$mode" in
+  import)
+    if [ -f "$TEST_TMPDIR/gpg-import-fail" ]; then
+      echo "gpg: import failed" >&2
+      exit 2
+    fi
+    id=$(cat "$TEST_TMPDIR/gpg-import-id" 2>/dev/null || true)
+    [ -n "$id" ] || id="TEST123KEY456"
+    if ! has_key "$id"; then
+      printf '%s\n' "$id" >> "$keys"
+    fi
+    printf 'gpg: key %s: secret key imported\n' "$id"
+    exit 0
+    ;;
+  delete)
+    if [ -n "$delete_target" ]; then
+      grep -vx "$delete_target" "$keys" > "$keys.tmp" || true
+      mv "$keys.tmp" "$keys"
+    else
+      : > "$keys"
+    fi
+    exit 0
+    ;;
+  sign)
+    if [ -f "$TEST_TMPDIR/gpg-sign-fail" ]; then
+      echo "gpg: bad passphrase" >&2
+      exit 2
+    fi
+    if [ "$pinentry" = "cancel" ] && [ ! -f "$TEST_TMPDIR/gpg-cached" ]; then
+      echo "gpg: public key decryption failed: Operation cancelled" >&2
+      exit 2
+    fi
+    exit 0
+    ;;
+  list)
+    if [ -n "$list_key" ]; then
+      has_key "$list_key" || exit 1
+      ids=$list_key
+    elif [ ! -s "$keys" ]; then
+      exit 0
+    else
+      ids=$(cat "$keys")
+    fi
+    printf '%s\n' "$ids" | while IFS= read -r id; do
+      [ -n "$id" ] || continue
+      if [ "$colon" -eq 1 ]; then
+        printf 'sec:u:255:1:%s:1700000000:::u:::sc:::+:::0:\n' "$id"
+        printf 'uid:u::::1700000000::Test User <test@example.com>::::::::::0:\n'
+      else
+        printf 'sec   ed25519/%s 2024-01-01 [SC]\n' "$id"
+        printf 'uid           [ultimate] Test User <test@example.com>\n'
+      fi
+    done
+    exit 0
+    ;;
+  *)
+    exit 0
+    ;;
+esac

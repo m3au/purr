@@ -87,6 +87,16 @@ brew install lolcat
    source ~/.zsh/purr/purr.zsh
    ```
 
+   To load it only when you run the command, use a wrapper. `purr.zsh` is written to be sourced that way:
+
+   ```zsh
+   purr() {
+     unfunction purr
+     source ~/.zsh/purr/purr.zsh
+     purr "$@"
+   }
+   ```
+
 3. Reload your shell:
    ```bash
    source ~/.zshrc
@@ -115,17 +125,17 @@ export PURR_GPG_CACHE_TTL=3600  # 1 hour instead of default ~400 days
 
 ## Verification
 
-Test the installation:
+After setup, check the machine without calling 1Password:
 
 ```bash
 purr check
 ```
 
-If everything is configured correctly, you should see status information about your keys.
+`purr check` exits 0 when SSH, the GPG secret key, and Git signing are in place. It prints a warning for optional gaps such as GitHub auth or a GPG passphrase that is not cached.
 
 ## First Use
 
-Run `purr` to load your keys:
+Run `purr` once on a new machine:
 
 ```bash
 purr
@@ -133,16 +143,12 @@ purr
 
 This will:
 
-- Connect to 1Password SSH agent
-- Load your GPG keys
-- Configure Git commit signing
-- Set up GitHub credentials
+- Write the 1Password `IdentityAgent` into `~/.ssh/config` if it is not already there
+- Import your GPG secret key from 1Password only when the keyring does not have it
+- Set Git commit signing (`user.signingkey`, `commit.gpgsign`, `gpg.program`)
+- Set a GitHub token from `gh auth token` when `gh` is authenticated, otherwise from 1Password
 
-When finished, lock your keys:
-
-```bash
-purr lock
-```
+Running `purr` again skips those steps. `purr lock` removes the GPG signing key and signs out of the 1Password CLI. The `IdentityAgent` line stays, so the next setup only has to import the key again.
 
 ## Troubleshooting
 

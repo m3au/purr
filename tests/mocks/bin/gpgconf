@@ -1,0 +1,4 @@
+#!/bin/sh
+: "${TEST_TMPDIR:?}"
+printf '%s\n' "$*" >> "$TEST_TMPDIR/gpgconf.log"
+exit 0

@@ -1,0 +1,62 @@
+#!/bin/sh
+# Mock 1Password CLI for integration tests.
+item=""
+field=""
+format=""
+prev=""
+for arg in "$@"; do
+  case "$prev" in
+    get) item=$arg ;;
+    --field) field=$arg ;;
+    --format) format=$arg ;;
+  esac
+  prev=$arg
+done
+
+if [ "$1" = "account" ]; then
+  printf '%s\n' '{"url":"https://test.1password.com","email":"test@example.com"}'
+  exit 0
+fi
+
+if [ "$1" = "signin" ]; then
+  printf '%s\n' 'export OP_SESSION_test="mock-session-token"'
+  exit 0
+fi
+
+if [ "$1" = "signout" ]; then
+  exit 0
+fi
+
+if [ "$1" = "item" ] && [ "$2" = "get" ]; then
+  if [ "$format" = "json" ]; then
+    case "$item" in
+      test-gpg | gpg)
+        printf '%s\n' '{"title":"gpg","fields":[{"label":"key_id","value":"TEST123KEY456"},{"label":"password","value":"test-passphrase"},{"label":"public_key","value":"pub"},{"label":"private_key","value":"priv"}]}'
+        exit 0
+        ;;
+      test-github | GitHub)
+        printf '%s\n' '{"title":"GitHub","fields":[{"label":"username","value":"testuser"},{"label":"email","value":"test@example.com"},{"label":"pat","value":"ghp_test1234567890abcdef"}]}'
+        exit 0
+        ;;
+    esac
+  fi
+  case "$item" in
+    test-gpg | gpg)
+      case "$field" in
+        key_id) printf '%s\n' "TEST123KEY456"; exit 0 ;;
+        password) printf '%s\n' "test-passphrase"; exit 0 ;;
+        public_key) printf '%s\n' "-----BEGIN PGP PUBLIC KEY BLOCK-----"; exit 0 ;;
+        private_key) printf '%s\n' "-----BEGIN PGP PRIVATE KEY BLOCK-----"; exit 0 ;;
+      esac
+      ;;
+    test-github | GitHub)
+      case "$field" in
+        username | user | login) printf '%s\n' "testuser"; exit 0 ;;
+        email | mail | "email address") printf '%s\n' "test@example.com"; exit 0 ;;
+        pat | token | password | "access token" | "personal access token") printf '%s\n' "ghp_test1234567890abcdef"; exit 0 ;;
+      esac
+      ;;
+  esac
+fi
+
+exit 0

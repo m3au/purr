@@ -1,0 +1,17 @@
+#!/bin/sh
+: "${TEST_TMPDIR:?}"
+printf '%s\n' "$*" >> "$TEST_TMPDIR/gh.log"
+if [ "$1" = "auth" ] && [ "$2" = "token" ]; then
+  if [ -f "$TEST_TMPDIR/gh-token" ]; then
+    cat "$TEST_TMPDIR/gh-token"
+    exit 0
+  fi
+  echo "not logged into any GitHub hosts" >&2
+  exit 1
+fi
+if [ "$1" = "api" ] && [ "$2" = "user" ]; then
+  printf '%s' '{"login":"octocat","email":"octo@example.com"}'
+  exit 0
+fi
+echo "unexpected gh: $*" >&2
+exit 1

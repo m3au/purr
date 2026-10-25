@@ -1,0 +1,12 @@
+#!/bin/sh
+: "${TEST_TMPDIR:?}"
+printf '%s\n' "$*" >> "$TEST_TMPDIR/ssh-add.log"
+if [ "${1:-}" = "-l" ]; then
+  if [ -f "$TEST_TMPDIR/ssh-no-keys" ]; then
+    echo "The agent has no identities."
+    exit 1
+  fi
+  echo "256 SHA256:abcdexamplekey test@example (ED25519)"
+  exit 0
+fi
+exit 0
